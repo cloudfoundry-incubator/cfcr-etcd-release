@@ -1,0 +1,37 @@
+---
+name: etcd-single-node
+
+stemcells:
+- alias: default
+  os: ubuntu-trusty
+  version: latest
+
+releases:
+- name: cfcr-etcd
+  version: latest
+- name: bpm
+  version: 0.2.0
+  url: https://bosh.io/d/github.com/cloudfoundry-incubator/bpm-release?v=0.2.0
+  sha1: f2bd126b17b3591160f501d88d79ccf0aba1ae54
+
+instance_groups:
+- name: etcd
+  azs: [z1]
+  instances: 1
+  persistent_disk_type: default
+  vm_type: default
+  stemcell: default
+  networks:
+  - name: default
+  jobs:
+  - name: etcd
+    release: cfcr-etcd
+  - name: bpm
+    release: bpm
+
+update:
+  serial: true
+  canaries: 1
+  max_in_flight: 1
+  canary_watch_time: 1000-60000
+  update_watch_time: 1000-60000

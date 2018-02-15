@@ -1,0 +1,12 @@
+set -e
+
+ETCD_VERSION="3.3.1"
+
+mkdir "${BOSH_INSTALL_TARGET:?}/bin"
+tar xvf etcd/etcd-v${ETCD_VERSION}-linux-amd64.tar.gz
+
+cp -a etcd-v${ETCD_VERSION}-linux-amd64/etcd "${BOSH_INSTALL_TARGET:?}/bin/etcd"
+chmod +x "${BOSH_INSTALL_TARGET:?}/bin/etcd"
+
+cp -a etcd-v${ETCD_VERSION}-linux-amd64/etcdctl "${BOSH_INSTALL_TARGET:?}/bin/etcdctl"
+chmod +x "${BOSH_INSTALL_TARGET:?}/bin/etcdctl"

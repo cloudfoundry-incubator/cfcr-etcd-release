@@ -1,0 +1,9 @@
+---
+name: etcd
+templates:
+  config/bpm.yml.erb: config/bpm.yml
+
+packages:
+- etcd
+
+properties: {}
