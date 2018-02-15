@@ -4,11 +4,11 @@ processes:
   executable: /var/vcap/packages/etcd/bin/etcd
   persistent_disk: true
   args:
-  - --name=etcd
+  - --name=<%= spec.id %>
   - --data-dir=/var/vcap/store/etcd
   - --listen-peer-urls=http://127.0.0.1:2380
   - --initial-advertise-peer-urls=http://127.0.0.1:2380
   - --listen-client-urls=http://127.0.0.1:2379
   - --advertise-client-urls=http://127.0.0.1:2379
-  - --initial-cluster=etcd=http://127.0.0.1:2380
+  - --initial-cluster=<%= spec.id %>=http://127.0.0.1:2380
   - --initial-cluster-state=new
