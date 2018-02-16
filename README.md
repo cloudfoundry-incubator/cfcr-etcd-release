@@ -2,6 +2,9 @@
 
 ## Running the acceptance tests
 
+Use `dep ensure` from the `src/acceptance` directory to pull needed dependencies
+before running the tests.
+
 ```
 cat > integration_config.json <<EOF
 {
