@@ -1,0 +1,15 @@
+---
+name: acceptance-tests
+templates:
+  run.sh.erb: bin/run
+  config/integration_config.json.erb: config/integration_config.json
+
+packages:
+- acceptance
+- golang-1.9-linux
+
+consumes:
+- name: etcd
+  type: etcd
+
+properties: {}

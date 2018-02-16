@@ -1,0 +1,19 @@
+#!/bin/bash -exu
+
+export GOPATH="/var/vcap/packages/acceptance"
+export GOROOT="/var/vcap/packages/golang-1.9-linux"
+export PATH="${PATH}:${GOPATH}/bin:${GOROOT}/bin"
+
+LOG_DIR="/var/vcap/sys/log/acceptance-tests"
+
+mkdir -p "${LOG_DIR}"
+chown vcap:vcap "${LOG_DIR}"
+
+pushd "${GOPATH}/src/acceptance" > /dev/null
+  go install ./vendor/github.com/onsi/ginkgo/ginkgo
+
+  CONFIG_FILE="/var/vcap/jobs/acceptance-tests/config/integration_config.json" \
+    ginkgo -v --race . \
+    1> >(tee -a "${LOG_DIR}/acceptance-tests.stdout.log") \
+    2> >(tee -a "${LOG_DIR}/acceptance-tests.stderr.log")
+popd > /dev/null

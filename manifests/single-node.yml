@@ -48,8 +48,24 @@ instance_groups:
   jobs:
   - name: etcd
     release: cfcr-etcd
+    provides:
+      etcd: {as: etcd}
   - name: bpm
     release: bpm
+
+- name: acceptance
+  azs: [z1]
+  instances: 1
+  lifecycle: errand
+  vm_type: default
+  stemcell: default
+  networks:
+  - name: default
+  jobs:
+  - name: acceptance-tests
+    release: cfcr-etcd
+    consumes:
+      etcd: {from: etcd}
 
 update:
   serial: true

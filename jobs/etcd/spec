@@ -6,4 +6,8 @@ templates:
 packages:
 - etcd
 
+provides:
+- name: etcd
+  type: etcd
+
 properties: {}
