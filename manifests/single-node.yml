@@ -40,7 +40,7 @@ instance_groups:
 - name: etcd
   azs: [z1]
   instances: 1
-  persistent_disk_type: default
+  persistent_disk: 5120
   vm_type: default
   stemcell: default
   networks:
