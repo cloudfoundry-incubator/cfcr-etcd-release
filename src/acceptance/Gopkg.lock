@@ -9,10 +9,18 @@
     "etcdserver/api/v3rpc/rpctypes",
     "etcdserver/etcdserverpb",
     "mvcc/mvccpb",
+    "pkg/tlsutil",
+    "pkg/transport",
     "pkg/types"
   ]
   revision = "28f3f26c0e303392556035b694f75768d449d33d"
   version = "v3.3.1"
+
+[[projects]]
+  branch = "master"
+  name = "github.com/dustin/go-humanize"
+  packages = ["."]
+  revision = "bb3d318650d48840a39aa21a027c6630e198e626"
 
 [[projects]]
   name = "github.com/gogo/protobuf"
@@ -195,6 +203,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "0d374979912034acab321d973cabe34359c0d53e0fab2965dfe3c913a9285835"
+  inputs-digest = "7f0f268b0e8d024e05badb8915c533b50bf43e9848c70bc2e88ecc8fdabf2b1d"
   solver-name = "gps-cdcl"
   solver-version = 1

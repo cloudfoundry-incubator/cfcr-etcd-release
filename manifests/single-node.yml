@@ -35,6 +35,11 @@ addons:
           tls: ((/dns_healthcheck_server_tls))
         client:
           tls: ((/dns_healthcheck_client_tls))
+- name: bosh-dns-aliases
+  jobs:
+  - name: etcd-dns-aliases
+    release: cfcr-etcd
+
 
 instance_groups:
 - name: etcd
@@ -50,6 +55,12 @@ instance_groups:
     release: cfcr-etcd
     provides:
       etcd: {as: etcd}
+    properties:
+      tls:
+        etcd:
+          ca: ((tls_etcd.ca))
+          certificate: ((tls_etcd.certificate))
+          private_key: ((tls_etcd.private_key))
   - name: bpm
     release: bpm
 
@@ -66,6 +77,12 @@ instance_groups:
     release: cfcr-etcd
     consumes:
       etcd: {from: etcd}
+  properties:
+    tls:
+      etcd_client:
+        ca: ((tls_acceptance_etcd_client.ca))
+        certificate: ((tls_acceptance_etcd_client.certificate))
+        private_key: ((tls_acceptance_etcd_client.private_key))
 
 update:
   serial: true
@@ -99,6 +116,27 @@ variables:
     common_name: health.bosh-dns
     extended_key_usage:
     - client_auth
+
+- name: etcd_ca
+  type: certificate
+  options:
+    is_ca: true
+    common_name: ca
+
+- name: tls_etcd
+  type: certificate
+  options:
+    ca: etcd_ca
+    common_name: etcd.cfcr.internal
+    alternative_names:
+    - "etcd.cfcr.internal"
+    - "*.etcd.cfcr.internal"
+
+- name: tls_acceptance_etcd_client
+  type: certificate
+  options:
+    ca: etcd_ca
+    common_name: etcd_acceptance_client
 
 features:
   use_dns_addresses: true

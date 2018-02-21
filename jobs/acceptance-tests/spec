@@ -3,6 +3,9 @@ name: acceptance-tests
 templates:
   run.sh.erb: bin/run
   config/integration_config.json.erb: config/integration_config.json
+  config/ca.crt.erb: config/ca.crt
+  config/client.crt.erb: config/client.crt
+  config/client.key.erb: config/client.key
 
 packages:
 - acceptance
@@ -12,4 +15,10 @@ consumes:
 - name: etcd
   type: etcd
 
-properties: {}
+properties:
+  tls.etcd_client.certificate:
+    description: TLS certificate for the etcd client
+  tls.etcd_client.private_key:
+    description: TLS private key for the etcd client
+  tls.etcd_client.ca:
+    description: TLS CA certificate for the etcd client

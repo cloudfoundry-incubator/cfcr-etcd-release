@@ -2,6 +2,9 @@
 name: etcd
 templates:
   config/bpm.yml.erb: config/bpm.yml
+  config/ca.pem.erb: config/ca.pem
+  config/server.crt.erb: config/server.crt
+  config/server.key.erb: config/server.key
 
 packages:
 - etcd
@@ -10,4 +13,14 @@ provides:
 - name: etcd
   type: etcd
 
-properties: {}
+consumes:
+- name: etcd
+  type: etcd
+
+properties:
+  tls.etcd.ca:
+    description: CA for client authentication
+  tls.etcd.certificate:
+    description: Certificate for server authentication
+  tls.etcd.private_key:
+    description: Private key for server authentication

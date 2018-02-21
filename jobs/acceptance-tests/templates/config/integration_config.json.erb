@@ -1,3 +1,8 @@
 {
-  "etcd_endpoint": "http://<%= link("etcd").instances[0].address %>:2379"
+  "etcd_endpoint": "https://etcd.cfcr.internal:2379",
+  "etcd_client_ca_path": "/var/vcap/jobs/acceptance-tests/config/ca.crt",
+  "etcd_client_cert_path": "/var/vcap/jobs/acceptance-tests/config/client.crt",
+  "etcd_client_private_key_path": "/var/vcap/jobs/acceptance-tests/config/client.key",
+  "etcd_client_selfsigned_cert_path": "/var/vcap/packages/acceptance/src/resources/selfsignedcert/selfsigned.crt",
+  "etcd_client_selfsigned_private_key_path": "/var/vcap/packages/acceptance/src/resources/selfsignedcert/selfsigned.crt"
 }
