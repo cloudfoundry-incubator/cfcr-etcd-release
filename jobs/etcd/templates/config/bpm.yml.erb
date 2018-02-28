@@ -9,12 +9,10 @@ processes:
   - --listen-peer-urls=http://127.0.0.1:2380
   - --initial-advertise-peer-urls=http://127.0.0.1:2380
   - --listen-client-urls=https://0.0.0.0:2379
-  - --advertise-client-urls=http://<%= spec.address %>:2379
-  - --initial-cluster=<%= spec.id %>=http://127.0.0.1:2380
+  - --advertise-client-urls=https://<%= spec.address %>:2379
+  - --initial-cluster=<%= spec.id %>=https://<%= spec.address %>:2380
   - --initial-cluster-state=new
   - --client-cert-auth
   - --trusted-ca-file=/var/vcap/jobs/etcd/config/ca.pem
   - --cert-file=/var/vcap/jobs/etcd/config/server.crt
   - --key-file=/var/vcap/jobs/etcd/config/server.key
-
-# <%= link("etcd").address %>

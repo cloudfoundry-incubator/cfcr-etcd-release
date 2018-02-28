@@ -2,7 +2,6 @@ package acceptance_test
 
 import (
 	"encoding/json"
-	"fmt"
 	"io/ioutil"
 	"os"
 	"testing"
@@ -21,12 +20,12 @@ func TestAcceptance(t *testing.T) {
 }
 
 type Config struct {
-	EtcdEndpoint                       string `json:"etcd_endpoint"`
-	EtcdClientCAPath                   string `json:"etcd_client_ca_path"`
-	EtcdClientCertPath                 string `json:"etcd_client_cert_path"`
-	EtcdClientPrivateKeyPath           string `json:"etcd_client_private_key_path"`
-	EtcdClientSelfSignedCertPath       string `json:"etcd_client_selfsigned_cert_path"`
-	EtcdClientSelfSignedPrivateKeyPath string `json:"etcd_client_selfsigned_private_key_path"`
+	EtcdEndpoints                      []string `json:"etcd_endpoints"`
+	EtcdClientCAPath                   string   `json:"etcd_client_ca_path"`
+	EtcdClientCertPath                 string   `json:"etcd_client_cert_path"`
+	EtcdClientPrivateKeyPath           string   `json:"etcd_client_private_key_path"`
+	EtcdClientSelfSignedCertPath       string   `json:"etcd_client_selfsigned_cert_path"`
+	EtcdClientSelfSignedPrivateKeyPath string   `json:"etcd_client_selfsigned_private_key_path"`
 }
 
 var (
@@ -36,9 +35,14 @@ var (
 
 var _ = BeforeSuite(func() {
 	var err error
-	config, err = ReadConfig()
+
+	configFile := os.Getenv("CONFIG_FILE")
+	Expect(configFile).NotTo(BeEmpty(), "CONFIG_FILE must be set to run the acceptance test suite.")
+
+	configContents, err := ioutil.ReadFile(configFile)
 	Expect(err).NotTo(HaveOccurred())
 
+	Expect(json.Unmarshal(configContents, &config)).To(Succeed())
 	tlsInfo := transport.TLSInfo{
 		CertFile:      config.EtcdClientCertPath,
 		KeyFile:       config.EtcdClientPrivateKeyPath,
@@ -48,28 +52,9 @@ var _ = BeforeSuite(func() {
 	Expect(err).NotTo(HaveOccurred())
 
 	client, err = clientv3.New(clientv3.Config{
-		Endpoints: []string{
-			config.EtcdEndpoint,
-		},
+		Endpoints:   config.EtcdEndpoints,
 		DialTimeout: 5 * time.Second,
 		TLS:         tlsConfig,
 	})
 	Expect(err).NotTo(HaveOccurred())
 })
-
-func ReadConfig() (Config, error) {
-	configFile := os.Getenv("CONFIG_FILE")
-	if configFile == "" {
-		return Config{}, fmt.Errorf("CONFIG_FILE must be set to run the acceptance test suite.")
-	}
-
-	configContents, err := ioutil.ReadFile(configFile)
-
-	var config Config
-	err = json.Unmarshal(configContents, &config)
-	if err != nil {
-		return Config{}, fmt.Errorf("failed to unmarshal configuration file: %s", err)
-	}
-
-	return config, nil
-}

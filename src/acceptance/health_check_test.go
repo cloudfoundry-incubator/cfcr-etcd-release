@@ -45,18 +45,19 @@ var _ = Describe("The cluster", func() {
 	})
 
 	It("doesn't accept http connections", func() {
-		insecureUrl, err := url.Parse(config.EtcdEndpoint)
-		Expect(err).NotTo(HaveOccurred())
+		insecureUrls := []string{}
 
-		insecureUrl.Scheme = "http"
+		for _, endpoint := range config.EtcdEndpoints {
+			insecureUrl, err := url.Parse(endpoint)
+			Expect(err).NotTo(HaveOccurred())
+			insecureUrl.Scheme = "http"
+			insecureUrls = append(insecureUrls, insecureUrl.String())
+		}
 
-		client, err = clientv3.New(clientv3.Config{
-			Endpoints: []string{
-				insecureUrl.String(),
-			},
+		client, err := clientv3.New(clientv3.Config{
+			Endpoints:   insecureUrls,
 			DialTimeout: 5 * time.Second,
 		})
-
 		Expect(err).NotTo(HaveOccurred())
 
 		clientContext, cancel := context.WithTimeout(context.Background(), ETCD_REQUEST_TIMEOUT)
@@ -82,9 +83,7 @@ var _ = Describe("The cluster", func() {
 		Expect(err).NotTo(HaveOccurred())
 
 		client, err = clientv3.New(clientv3.Config{
-			Endpoints: []string{
-				config.EtcdEndpoint,
-			},
+			Endpoints:   config.EtcdEndpoints,
 			DialTimeout: 1 * time.Second,
 			TLS:         tlsConfig,
 		})
