@@ -1,5 +1,5 @@
 ---
-name: etcd-single-node
+name: etcd
 
 stemcells:
 - alias: default
@@ -40,12 +40,11 @@ addons:
   - name: etcd-dns-aliases
     release: cfcr-etcd
 
-
 instance_groups:
 - name: etcd
   azs: [z1]
   instances: 1
-  persistent_disk: 5120
+  persistent_disk_type: 10GB
   vm_type: default
   stemcell: default
   networks:
@@ -131,12 +130,16 @@ variables:
     alternative_names:
     - "etcd.cfcr.internal"
     - "*.etcd.cfcr.internal"
+    extended_key_usage:
+    - server_auth
 
 - name: tls_acceptance_etcd_client
   type: certificate
   options:
     ca: etcd_ca
     common_name: etcd_acceptance_client
+    extended_key_usage:
+    - client_auth
 
 features:
   use_dns_addresses: true
