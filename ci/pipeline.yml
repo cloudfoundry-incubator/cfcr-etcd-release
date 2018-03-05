@@ -40,6 +40,8 @@ resources:
 
 jobs:
 - name: deploy-etcd
+  serial: true
+  serial_groups: [etcd]
   plan:
   - aggregate:
     - get: git-cfcr-etcd-release
@@ -72,6 +74,8 @@ jobs:
       cleanup: true
 
 - name: run-acceptance-etcd
+  serial: true
+  serial_groups: [etcd]
   plan:
   - get: git-cfcr-etcd-release
     passed: [ deploy-etcd ]
@@ -103,6 +107,8 @@ jobs:
           bosh run-errand acceptance
 
 - name: delete-etcd
+  serial: true
+  serial_groups: [etcd]
   plan:
   - get: git-cfcr-etcd-release
     passed: [ run-acceptance-etcd ]
@@ -113,6 +119,8 @@ jobs:
         enabled: true
 
 - name: deploy-etcd-single-node
+  serial: true
+  serial_groups: [etcd-single-node]
   plan:
   - aggregate:
     - get: git-cfcr-etcd-release
@@ -150,6 +158,8 @@ jobs:
       cleanup: true
 
 - name: run-acceptance-etcd-single-node
+  serial: true
+  serial_groups: [etcd-single-node]
   plan:
   - get: git-cfcr-etcd-release
     passed: [ deploy-etcd-single-node ]
@@ -181,6 +191,8 @@ jobs:
           bosh run-errand acceptance
 
 - name: delete-etcd-single-node
+  serial: true
+  serial_groups: [etcd-single-node]
   plan:
   - get: git-cfcr-etcd-release
     passed: [ run-acceptance-etcd-single-node ]
