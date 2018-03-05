@@ -53,9 +53,14 @@ instance_groups:
     properties:
       tls:
         etcd:
-          ca: ((tls_etcd.ca))
-          certificate: ((tls_etcd.certificate))
-          private_key: ((tls_etcd.private_key))
+          server:
+            ca: ((tls_etcd_server.ca))
+            certificate: ((tls_etcd_server.certificate))
+            private_key: ((tls_etcd_server.private_key))
+          client:
+            ca: ((tls_etcd_client.ca))
+            certificate: ((tls_etcd_client.certificate))
+            private_key: ((tls_etcd_client.private_key))
   - name: bpm
     release: bpm
 
@@ -75,9 +80,9 @@ instance_groups:
   properties:
     tls:
       etcd_client:
-        ca: ((tls_acceptance_etcd_client.ca))
-        certificate: ((tls_acceptance_etcd_client.certificate))
-        private_key: ((tls_acceptance_etcd_client.private_key))
+        ca: ((tls_etcd_client.ca))
+        certificate: ((tls_etcd_client.certificate))
+        private_key: ((tls_etcd_client.private_key))
 
 update:
   serial: true
@@ -118,7 +123,7 @@ variables:
     is_ca: true
     common_name: ca
 
-- name: tls_etcd
+- name: tls_etcd_server
   type: certificate
   options:
     ca: etcd_ca
@@ -129,7 +134,7 @@ variables:
     extended_key_usage:
     - server_auth
 
-- name: tls_acceptance_etcd_client
+- name: tls_etcd_client
   type: certificate
   options:
     ca: etcd_ca
