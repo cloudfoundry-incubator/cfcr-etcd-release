@@ -2,7 +2,9 @@
 name: etcd
 
 templates:
+  bin/ensure-member-healthy.erb: bin/ensure-member-healthy
   bin/etcdctl.erb: bin/etcdctl
+  bin/post-start.erb: bin/post-start
   bin/pre-start.erb: bin/pre-start
   bin/setup.erb: bin/setup
   config/bpm.yml.erb: config/bpm.yml
