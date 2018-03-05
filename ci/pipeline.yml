@@ -11,6 +11,12 @@ resources:
     uri: https://github.com/cloudfoundry-incubator/cfcr-etcd-release
     branch: master
 
+- name: git-kubo-etcd-release
+  type: git
+  source:
+    uri: https://github.com/pivotal-cf-experimental/kubo-etcd
+    branch: master
+
 - name: stemcell
   type: bosh-io-stemcell
   source:
@@ -31,6 +37,17 @@ resources:
   type: bosh-deployment
   source:
     deployment: etcd
+    target: ((cfcr-etcd-bosh.target))
+    client: ((cfcr-etcd-bosh.client))
+    client_secret: ((cfcr-etcd-bosh.client_secret))
+    ca_cert: ((cfcr-etcd-bosh.ca_cert))
+    jumpbox_url: ((cfcr-etcd-bosh.jumpbox_url))
+    jumpbox_ssh_key: ((cfcr-etcd-bosh.jumpbox_ssh_key))
+
+- name: etcd-migrate-deployment
+  type: bosh-deployment
+  source:
+    deployment: etcd-migrate
     target: ((cfcr-etcd-bosh.target))
     client: ((cfcr-etcd-bosh.client))
     client_secret: ((cfcr-etcd-bosh.client_secret))
@@ -198,6 +215,134 @@ jobs:
     passed: [ run-acceptance-etcd-single-node ]
     trigger: true
   - put: single-node-deployment
+    params:
+      delete:
+        enabled: true
+
+- name: migrate-from-kubo-etcd
+  serial: true
+  serial_groups: [etcd-migrate]
+  plan:
+  - aggregate:
+    - get: git-cfcr-etcd-release
+      trigger: true
+    - get: git-kubo-etcd-release
+      trigger: true
+    - get: stemcell
+  - task: create-kubo-etcd-release
+    config:
+      inputs:
+      - name: git-kubo-etcd-release
+      outputs:
+      - name: kubo-etcd-release-tarball
+      platform: linux
+      image_resource:
+        type: docker-image
+        source: {repository: pcfkubo/kubo-ci}
+      run:
+        path: bash
+        args:
+        - -exuc
+        - bosh create-release --dir=git-kubo-etcd-release --tarball=kubo-etcd-release-tarball/kubo-etcd-release.tgz --timestamp-version
+  - put: etcd-migrate-deployment
+    params:
+      manifest: git-kubo-etcd-release/manifests/1-node-with-ssl-bosh-dns-like-cfcr.yml
+      stemcells:
+      - stemcell/stemcell.tgz
+      releases:
+      - kubo-etcd-release-tarball/kubo-etcd-release.tgz
+      ops_files:
+      - git-kubo-etcd-release/manifests/operations/deployment-name.yml
+      cleanup: true
+      vars:
+        deployment-name: etcd-migrate
+  - task: set-and-check-value
+    config:
+      platform: linux
+      image_resource:
+        type: docker-image
+        source: {repository: pcfkubo/kubo-ci}
+      params:
+        BOSH_ENVIRONMENT: ((cfcr-etcd-bosh.target))
+        BOSH_CLIENT: ((cfcr-etcd-bosh.client))
+        BOSH_CLIENT_SECRET: ((cfcr-etcd-bosh.client_secret))
+        BOSH_CA_CERT: ((cfcr-etcd-bosh.ca_cert))
+        BOSH_DEPLOYMENT: etcd-migrate
+        JUMPBOX_URL: ((cfcr-etcd-bosh.jumpbox_url))
+        JUMPBOX_SSH_KEY: ((cfcr-etcd-bosh.jumpbox_ssh_key))
+      run:
+        path: bash
+        args:
+        - -exuc
+        - |
+          ROOT="${PWD}"
+          echo "${JUMPBOX_SSH_KEY}" > "${ROOT}/jumpbox.key"
+          chmod 600 "${ROOT}/jumpbox.key"
+          export BOSH_ALL_PROXY="ssh+socks5://${JUMPBOX_URL}?private-key=${ROOT}/jumpbox.key"
+          bosh ssh etcd/0 -c "ETCDCTL_API=3 /var/vcap/jobs/etcd/bin/etcdctl put test-key test-value"
+          bosh ssh etcd/0 -c "ETCDCTL_API=3 /var/vcap/jobs/etcd/bin/etcdctl get test-key | grep test-value"
+  - task: create-cfcr-etcd-release
+    config:
+      inputs:
+      - name: git-cfcr-etcd-release
+      outputs:
+      - name: cfcr-etcd-release-tarball
+      platform: linux
+      image_resource:
+        type: docker-image
+        source: {repository: pcfkubo/kubo-ci}
+      run:
+        path: bash
+        args:
+        - -exuc
+        - bosh create-release --dir=git-cfcr-etcd-release --tarball=cfcr-etcd-release-tarball/cfcr-etcd-release.tgz --timestamp-version
+  - put: etcd-migrate-deployment
+    params:
+      manifest: git-cfcr-etcd-release/manifests/etcd.yml
+      stemcells:
+      - stemcell/stemcell.tgz
+      releases:
+      - cfcr-etcd-release-tarball/cfcr-etcd-release.tgz
+      ops_files:
+      - git-cfcr-etcd-release/manifests/ops-files/deployment-name.yml
+      - git-cfcr-etcd-release/manifests/ops-files/single-node.yml
+      cleanup: true
+      vars:
+        deployment-name: etcd-migrate
+  - task: set-and-check-value
+    config:
+      platform: linux
+      image_resource:
+        type: docker-image
+        source: {repository: pcfkubo/kubo-ci}
+      params:
+        BOSH_ENVIRONMENT: ((cfcr-etcd-bosh.target))
+        BOSH_CLIENT: ((cfcr-etcd-bosh.client))
+        BOSH_CLIENT_SECRET: ((cfcr-etcd-bosh.client_secret))
+        BOSH_CA_CERT: ((cfcr-etcd-bosh.ca_cert))
+        BOSH_DEPLOYMENT: etcd-migrate
+        JUMPBOX_URL: ((cfcr-etcd-bosh.jumpbox_url))
+        JUMPBOX_SSH_KEY: ((cfcr-etcd-bosh.jumpbox_ssh_key))
+      run:
+        path: bash
+        args:
+        - -exuc
+        - |
+          ROOT="${PWD}"
+          echo "${JUMPBOX_SSH_KEY}" > "${ROOT}/jumpbox.key"
+          chmod 600 "${ROOT}/jumpbox.key"
+          export BOSH_ALL_PROXY="ssh+socks5://${JUMPBOX_URL}?private-key=${ROOT}/jumpbox.key"
+          bosh ssh etcd/0 -c "ETCDCTL_API=3 /var/vcap/jobs/etcd/bin/etcdctl get test-key | grep test-value"
+          bosh ssh etcd/0 -c "ETCDCTL_API=3 /var/vcap/jobs/etcd/bin/etcdctl member list | grep etcd.default.${BOSH_DEPLOYMENT}.bosh"
+
+- name: delete-etcd-migrate
+  serial: true
+  serial_groups: [etcd-migrate]
+  plan:
+  - get: git-cfcr-etcd-release
+    passed: [ migrate-from-kubo-etcd ]
+    trigger: true
+  - put: etcd-migrate-deployment
     params:
       delete:
         enabled: true
