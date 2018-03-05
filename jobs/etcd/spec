@@ -3,6 +3,7 @@ name: etcd
 
 templates:
   bin/ensure-member-healthy.erb: bin/ensure-member-healthy
+  bin/etcd.erb: bin/etcd
   bin/etcdctl.erb: bin/etcdctl
   bin/post-start.erb: bin/post-start
   bin/pre-start.erb: bin/pre-start
