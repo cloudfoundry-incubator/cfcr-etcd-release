@@ -1,4 +1,5 @@
 ---
+<% etcd_peers = link('etcd').instances.map{ |server| "#{server.id}=https://#{server.address}:2380" } %>
 processes:
 - name: etcd
   executable: /var/vcap/packages/etcd/bin/etcd
@@ -6,13 +7,17 @@ processes:
   args:
   - --name=<%= spec.id %>
   - --data-dir=/var/vcap/store/etcd
-  - --listen-peer-urls=http://127.0.0.1:2380
-  - --initial-advertise-peer-urls=http://127.0.0.1:2380
+  - --listen-peer-urls=https://0.0.0.0:2380
+  - --initial-advertise-peer-urls=https://<%= spec.address %>:2380
   - --listen-client-urls=https://0.0.0.0:2379
   - --advertise-client-urls=https://<%= spec.address %>:2379
-  - --initial-cluster=<%= spec.id %>=http://127.0.0.1:2380
+  - --initial-cluster=<%= etcd_peers.join(",") %>
   - --initial-cluster-state=new
   - --client-cert-auth
   - --trusted-ca-file=/var/vcap/jobs/etcd/config/server-ca.crt
   - --cert-file=/var/vcap/jobs/etcd/config/server.crt
   - --key-file=/var/vcap/jobs/etcd/config/server.key
+  - --peer-client-cert-auth
+  - --peer-trusted-ca-file=/var/vcap/jobs/etcd/config/peer-ca.crt
+  - --peer-cert-file=/var/vcap/jobs/etcd/config/peer.crt
+  - --peer-key-file=/var/vcap/jobs/etcd/config/peer.key

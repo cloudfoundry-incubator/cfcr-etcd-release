@@ -39,7 +39,7 @@ addons:
 instance_groups:
 - name: etcd
   azs: [z1]
-  instances: 1
+  instances: 3
   persistent_disk_type: 10GB
   vm_type: default
   stemcell: default
@@ -53,14 +53,18 @@ instance_groups:
     properties:
       tls:
         etcd:
-          server:
-            ca: ((tls_etcd_server.ca))
-            certificate: ((tls_etcd_server.certificate))
-            private_key: ((tls_etcd_server.private_key))
           client:
             ca: ((tls_etcd_client.ca))
             certificate: ((tls_etcd_client.certificate))
             private_key: ((tls_etcd_client.private_key))
+          peer:
+            ca: ((tls_etcd_peer.ca))
+            certificate: ((tls_etcd_peer.certificate))
+            private_key: ((tls_etcd_peer.private_key))
+          server:
+            ca: ((tls_etcd_server.ca))
+            certificate: ((tls_etcd_server.certificate))
+            private_key: ((tls_etcd_server.private_key))
   - name: bpm
     release: bpm
 
@@ -140,6 +144,18 @@ variables:
     ca: etcd_ca
     common_name: etcd_acceptance_client
     extended_key_usage:
+    - client_auth
+
+- name: tls_etcd_peer
+  type: certificate
+  options:
+    ca: etcd_ca
+    common_name: etcd.default.etcd.bosh
+    alternative_names:
+    - "etcd.default.etcd.bosh"
+    - "*.etcd.default.etcd.bosh"
+    extended_key_usage:
+    - server_auth
     - client_auth
 
 features:

@@ -9,6 +9,9 @@ templates:
   config/client-ca.crt.erb: config/client-ca.crt
   config/client.crt.erb: config/client.crt
   config/client.key.erb: config/client.key
+  config/peer-ca.crt.erb: config/peer-ca.crt
+  config/peer.crt.erb: config/peer.crt
+  config/peer.key.erb: config/peer.key
   config/server-ca.crt.erb: config/server-ca.crt
   config/server.crt.erb: config/server.crt
   config/server.key.erb: config/server.key
@@ -25,15 +28,21 @@ consumes:
   type: etcd
 
 properties:
-  tls.etcd.server.ca:
-    description: CA for server authentication
-  tls.etcd.server.certificate:
-    description: Certificate for server authentication
-  tls.etcd.server.private_key:
-    description: Private key for server authentication
   tls.etcd.client.ca:
     description: CA for client authentication
   tls.etcd.client.certificate:
     description: Certificate for client authentication
   tls.etcd.client.private_key:
     description: Private key for client authentication
+  tls.etcd.peer.ca:
+    description: CA for peer authentication
+  tls.etcd.peer.certificate:
+    description: Certificate for peer authentication
+  tls.etcd.peer.private_key:
+    description: Private key for peer authentication
+  tls.etcd.server.ca:
+    description: CA for server authentication
+  tls.etcd.server.certificate:
+    description: Certificate for server authentication
+  tls.etcd.server.private_key:
+    description: Private key for server authentication
