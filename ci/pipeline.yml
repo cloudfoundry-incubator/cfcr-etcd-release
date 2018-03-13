@@ -311,7 +311,7 @@ jobs:
       cleanup: true
       vars:
         deployment-name: etcd-migrate
-  - task: set-and-check-value
+  - task: check-value
     config:
       platform: linux
       image_resource:
@@ -325,17 +325,10 @@ jobs:
         BOSH_DEPLOYMENT: etcd-migrate
         JUMPBOX_URL: ((cfcr-etcd-bosh.jumpbox_url))
         JUMPBOX_SSH_KEY: ((cfcr-etcd-bosh.jumpbox_ssh_key))
+      inputs:
+      - name: git-cfcr-etcd-release
       run:
-        path: bash
-        args:
-        - -exuc
-        - |
-          ROOT="${PWD}"
-          echo "${JUMPBOX_SSH_KEY}" > "${ROOT}/jumpbox.key"
-          chmod 600 "${ROOT}/jumpbox.key"
-          export BOSH_ALL_PROXY="ssh+socks5://${JUMPBOX_URL}?private-key=${ROOT}/jumpbox.key"
-          bosh ssh etcd/0 -c "ETCDCTL_API=3 /var/vcap/jobs/etcd/bin/etcdctl get test-key | grep test-value"
-          bosh ssh etcd/0 -c "ETCDCTL_API=3 /var/vcap/jobs/etcd/bin/etcdctl member list | grep etcd.default.${BOSH_DEPLOYMENT}.bosh"
+        path: git-cfcr-etcd-release/ci/scripts/check-value-migrate.sh
 
 - name: delete-etcd-migrate
   serial: true
@@ -396,17 +389,10 @@ jobs:
       image_resource:
         type: docker-image
         source: {repository: pcfkubo/kubo-ci}
+      inputs:
+      - name: git-cfcr-etcd-release
       run:
-        path: bash
-        args:
-        - -exuc
-        - |
-          ROOT="${PWD}"
-          echo "${JUMPBOX_SSH_KEY}" > "${ROOT}/jumpbox.key"
-          chmod 600 "${ROOT}/jumpbox.key"
-          export BOSH_ALL_PROXY="ssh+socks5://${JUMPBOX_URL}?private-key=${ROOT}/jumpbox.key"
-          vm_id="$(bosh vms | grep vm | tail -1 | awk '{print $5}')"
-          bosh -n delete-vm $vm_id
+        path: git-cfcr-etcd-release/ci/scripts/delete-vm.sh
 
   - task: run-acceptance-errand
     config:
@@ -488,17 +474,11 @@ jobs:
         BOSH_DEPLOYMENT: etcd-scale
         JUMPBOX_URL: ((cfcr-etcd-bosh.jumpbox_url))
         JUMPBOX_SSH_KEY: ((cfcr-etcd-bosh.jumpbox_ssh_key))
+      inputs:
+      - name: git-cfcr-etcd-release
       run:
-        path: bash
-        args:
-        - -exuc
-        - |
-          ROOT="${PWD}"
-          echo "${JUMPBOX_SSH_KEY}" > "${ROOT}/jumpbox.key"
-          chmod 600 "${ROOT}/jumpbox.key"
-          export BOSH_ALL_PROXY="ssh+socks5://${JUMPBOX_URL}?private-key=${ROOT}/jumpbox.key"
-          bosh ssh etcd/0 -c "ETCDCTL_API=3 /var/vcap/jobs/etcd/bin/etcdctl put test-key test-value"
-          bosh ssh etcd/0 -c "ETCDCTL_API=3 /var/vcap/jobs/etcd/bin/etcdctl get test-key | grep test-value"
+        path: git-cfcr-etcd-release/ci/scripts/set-and-check-value.sh
+
   - put: etcd-scale-deployment
     params:
       manifest: git-cfcr-etcd-release/manifests/etcd.yml
@@ -511,7 +491,7 @@ jobs:
       cleanup: true
       vars:
         deployment-name: etcd-scale
-  - task: set-and-check-value
+  - task: check-value
     config:
       platform: linux
       image_resource:
@@ -525,18 +505,10 @@ jobs:
         BOSH_DEPLOYMENT: etcd-scale
         JUMPBOX_URL: ((cfcr-etcd-bosh.jumpbox_url))
         JUMPBOX_SSH_KEY: ((cfcr-etcd-bosh.jumpbox_ssh_key))
+      inputs:
+      - name: git-cfcr-etcd-release
       run:
-        path: bash
-        args:
-        - -exuc
-        - |
-          ROOT="${PWD}"
-          echo "${JUMPBOX_SSH_KEY}" > "${ROOT}/jumpbox.key"
-          chmod 600 "${ROOT}/jumpbox.key"
-          export BOSH_ALL_PROXY="ssh+socks5://${JUMPBOX_URL}?private-key=${ROOT}/jumpbox.key"
-          bosh ssh etcd/0 -c "ETCDCTL_API=3 /var/vcap/jobs/etcd/bin/etcdctl get test-key | grep test-value"
-          bosh ssh etcd/0 -c "ETCDCTL_API=3 /var/vcap/jobs/etcd/bin/etcdctl member list | wc -l | grep 3"
-          bosh ssh etcd/0 -c "/var/vcap/jobs/etcd/bin/etcdctl cluster-health | grep 'cluster is healthy'"
+        path: git-cfcr-etcd-release/ci/scripts/check-value-3-nodes.sh
 
 - name: delete-etcd-scale
   serial: true
