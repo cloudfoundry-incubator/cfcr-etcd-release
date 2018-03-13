@@ -210,17 +210,10 @@ jobs:
         BOSH_DEPLOYMENT: etcd-single-node
         JUMPBOX_URL: ((cfcr-etcd-bosh.jumpbox_url))
         JUMPBOX_SSH_KEY: ((cfcr-etcd-bosh.jumpbox_ssh_key))
+      inputs:
+      - name: git-cfcr-etcd-release
       run:
-        path: bash
-        args:
-        - -c
-        - |
-          set -eu
-          ROOT="${PWD}"
-          echo "${JUMPBOX_SSH_KEY}" > "${ROOT}/jumpbox.key"
-          chmod 600 "${ROOT}/jumpbox.key"
-          export BOSH_ALL_PROXY="ssh+socks5://${JUMPBOX_URL}?private-key=${ROOT}/jumpbox.key"
-          bosh run-errand acceptance
+        path: git-cfcr-etcd-release/ci/scripts/run-acceptance-errand.sh
 
 - name: delete-etcd-single-node
   serial: true
@@ -285,17 +278,11 @@ jobs:
         BOSH_DEPLOYMENT: etcd-migrate
         JUMPBOX_URL: ((cfcr-etcd-bosh.jumpbox_url))
         JUMPBOX_SSH_KEY: ((cfcr-etcd-bosh.jumpbox_ssh_key))
+      inputs:
+      - name: git-cfcr-etcd-release
       run:
-        path: bash
-        args:
-        - -exuc
-        - |
-          ROOT="${PWD}"
-          echo "${JUMPBOX_SSH_KEY}" > "${ROOT}/jumpbox.key"
-          chmod 600 "${ROOT}/jumpbox.key"
-          export BOSH_ALL_PROXY="ssh+socks5://${JUMPBOX_URL}?private-key=${ROOT}/jumpbox.key"
-          bosh ssh etcd/0 -c "ETCDCTL_API=3 /var/vcap/jobs/etcd/bin/etcdctl put test-key test-value"
-          bosh ssh etcd/0 -c "ETCDCTL_API=3 /var/vcap/jobs/etcd/bin/etcdctl get test-key | grep test-value"
+        path: git-cfcr-etcd-release/ci/scripts/set-and-check-value.sh
+
   - task: create-cfcr-etcd-release
     config:
       inputs:
@@ -435,17 +422,11 @@ jobs:
         BOSH_DEPLOYMENT: etcd-multiaz
         JUMPBOX_URL: ((cfcr-etcd-bosh.jumpbox_url))
         JUMPBOX_SSH_KEY: ((cfcr-etcd-bosh.jumpbox_ssh_key))
+      inputs:
+      - name: git-cfcr-etcd-release
       run:
-        path: bash
-        args:
-        - -c
-        - |
-          set -eu
-          ROOT="${PWD}"
-          echo "${JUMPBOX_SSH_KEY}" > "${ROOT}/jumpbox.key"
-          chmod 600 "${ROOT}/jumpbox.key"
-          export BOSH_ALL_PROXY="ssh+socks5://${JUMPBOX_URL}?private-key=${ROOT}/jumpbox.key"
-          bosh run-errand acceptance
+        path: git-cfcr-etcd-release/ci/scripts/run-acceptance-errand.sh
+
 - name: delete-etcd-multiaz
   plan:
   - get: git-cfcr-etcd-release
