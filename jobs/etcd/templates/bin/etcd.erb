@@ -35,6 +35,9 @@ if [ ! -d /var/vcap/store/etcd/member ]; then
 fi
 <% end %>
 
+ulimit -v unlimited
+ulimit -n 100000
+
 /var/vcap/packages/etcd/bin/etcd \
   --name="<%= spec.id %>" \
   --data-dir="/var/vcap/store/etcd" \
