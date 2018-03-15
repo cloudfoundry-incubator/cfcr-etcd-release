@@ -33,10 +33,7 @@ if [ ! -d /var/vcap/store/etcd/member ]; then
   MEMBER_ADD_OUTPUT="$(ETCDCTL_API=3 etcdctl member add <%= spec.id %> --peer-urls "<%= "https://#{spec.address}:2380" %>")"
   CLUSTER="$(echo "${MEMBER_ADD_OUTPUT}" | grep "ETCD_INITIAL_CLUSTER=" | cut -d'=' -f2- | tr -d '"')"
 fi
-<% end %>
-
-ulimit -v unlimited
-ulimit -n 100000
+<% end -%>
 
 /var/vcap/packages/etcd/bin/etcd \
   --name="<%= spec.id %>" \
