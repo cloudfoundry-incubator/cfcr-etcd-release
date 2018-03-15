@@ -10,16 +10,16 @@ fi
 
 if [[ "${ETCDCTL_API}" == "3" ]]; then
   /var/vcap/packages/etcd/bin/etcdctl \
-    --cacert /var/vcap/jobs/etcd/config/client-ca.crt \
-    --cert /var/vcap/jobs/etcd/config/client.crt \
-    --key /var/vcap/jobs/etcd/config/client.key \
+    --cacert /var/vcap/jobs/etcd/config/etcdctl-ca.crt \
+    --cert /var/vcap/jobs/etcd/config/etcdctl.crt \
+    --key /var/vcap/jobs/etcd/config/etcdctl.key \
     --endpoints "${etcd_endpoints}" \
     "$@"
 else
   /var/vcap/packages/etcd/bin/etcdctl \
-    --ca-file /var/vcap/jobs/etcd/config/client-ca.crt \
-    --cert-file /var/vcap/jobs/etcd/config/client.crt \
-    --key-file /var/vcap/jobs/etcd/config/client.key \
+    --ca-file /var/vcap/jobs/etcd/config/etcdctl-ca.crt \
+    --cert-file /var/vcap/jobs/etcd/config/etcdctl.crt \
+    --key-file /var/vcap/jobs/etcd/config/etcdctl.key \
     --endpoints "${etcd_endpoints}" \
     "$@"
 fi

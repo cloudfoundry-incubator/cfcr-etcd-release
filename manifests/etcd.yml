@@ -53,18 +53,18 @@ instance_groups:
     properties:
       tls:
         etcd:
-          client:
-            ca: ((tls_etcd_client.ca))
-            certificate: ((tls_etcd_client.certificate))
-            private_key: ((tls_etcd_client.private_key))
+          etcd:
+            ca: ((tls_etcd.ca))
+            certificate: ((tls_etcd.certificate))
+            private_key: ((tls_etcd.private_key))
+          etcdctl:
+            ca: ((tls_etcdctl.ca))
+            certificate: ((tls_etcdctl.certificate))
+            private_key: ((tls_etcdctl.private_key))
           peer:
             ca: ((tls_etcd_peer.ca))
             certificate: ((tls_etcd_peer.certificate))
             private_key: ((tls_etcd_peer.private_key))
-          server:
-            ca: ((tls_etcd_server.ca))
-            certificate: ((tls_etcd_server.certificate))
-            private_key: ((tls_etcd_server.private_key))
   - name: bpm
     release: bpm
 
@@ -84,9 +84,9 @@ instance_groups:
   properties:
     tls:
       etcd_client:
-        ca: ((tls_etcd_client.ca))
-        certificate: ((tls_etcd_client.certificate))
-        private_key: ((tls_etcd_client.private_key))
+        ca: ((tls_etcdctl.ca))
+        certificate: ((tls_etcdctl.certificate))
+        private_key: ((tls_etcdctl.private_key))
 
 update:
   serial: true
@@ -127,7 +127,7 @@ variables:
     is_ca: true
     common_name: ca
 
-- name: tls_etcd_server
+- name: tls_etcd
   type: certificate
   options:
     ca: etcd_ca
@@ -137,13 +137,6 @@ variables:
     - "*.etcd.default.etcd.bosh"
     extended_key_usage:
     - server_auth
-
-- name: tls_etcd_client
-  type: certificate
-  options:
-    ca: etcd_ca
-    common_name: etcd_acceptance_client
-    extended_key_usage:
     - client_auth
 
 - name: tls_etcd_peer
@@ -156,6 +149,14 @@ variables:
     - "*.etcd.default.etcd.bosh"
     extended_key_usage:
     - server_auth
+    - client_auth
+
+- name: tls_etcdctl
+  type: certificate
+  options:
+    ca: etcd_ca
+    common_name: etcd_acceptance_client
+    extended_key_usage:
     - client_auth
 
 features:
