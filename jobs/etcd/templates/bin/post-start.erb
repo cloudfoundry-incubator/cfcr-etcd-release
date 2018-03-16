@@ -6,7 +6,7 @@ set -euo pipefail
 # cluster. This block checks the peer url and updates it to the default BOSH
 # DNS address.
 <% if link('etcd').instances.size == 1 %>
-timeout 120 /var/vcap/jobs/etcd/bin/ensure-member-healthy
+timeout 240 /var/vcap/jobs/etcd/bin/ensure-member-healthy
 
 export ETCDCTL_API=3
 
