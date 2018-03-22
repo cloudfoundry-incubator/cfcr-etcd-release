@@ -53,18 +53,17 @@ instance_groups:
     properties:
       tls:
         etcd:
-          etcd:
-            ca: ((tls_etcd.ca))
-            certificate: ((tls_etcd.certificate))
-            private_key: ((tls_etcd.private_key))
-          etcdctl:
-            ca: ((tls_etcdctl.ca))
-            certificate: ((tls_etcdctl.certificate))
-            private_key: ((tls_etcdctl.private_key))
-          peer:
-            ca: ((tls_etcd_peer.ca))
-            certificate: ((tls_etcd_peer.certificate))
-            private_key: ((tls_etcd_peer.private_key))
+          ca: ((tls_etcd.ca))
+          certificate: ((tls_etcd.certificate))
+          private_key: ((tls_etcd.private_key))
+        etcdctl:
+          ca: ((tls_etcdctl.ca))
+          certificate: ((tls_etcdctl.certificate))
+          private_key: ((tls_etcdctl.private_key))
+        peer:
+          ca: ((tls_etcd_peer.ca))
+          certificate: ((tls_etcd_peer.certificate))
+          private_key: ((tls_etcd_peer.private_key))
   - name: bpm
     release: bpm
 

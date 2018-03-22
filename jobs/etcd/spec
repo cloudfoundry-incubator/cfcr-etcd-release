@@ -26,27 +26,31 @@ packages:
 provides:
 - name: etcd
   type: etcd
+  properties:
+  - tls.etcdctl.ca
+  - tls.etcdctl.certificate
+  - tls.etcdctl.private_key
 
 consumes:
 - name: etcd
   type: etcd
 
 properties:
-  tls.etcd.etcd.ca:
+  tls.etcd.ca:
     description: CA for etcd client and server authentication
-  tls.etcd.etcd.certificate:
+  tls.etcd.certificate:
     description: Certificate for etcd client and server authentication
-  tls.etcd.etcd.private_key:
+  tls.etcd.private_key:
     description: Private key for etcd client and server authentication
-  tls.etcd.etcdctl.ca:
+  tls.etcdctl.ca:
     description: CA for etcdctl client authentication
-  tls.etcd.etcdctl.certificate:
+  tls.etcdctl.certificate:
     description: Certificate for etcdctl client authentication
-  tls.etcd.etcdctl.private_key:
+  tls.etcdctl.private_key:
     description: Private key for etcdctl client authentication
-  tls.etcd.peer.ca:
+  tls.peer.ca:
     description: CA for peer authentication
-  tls.etcd.peer.certificate:
+  tls.peer.certificate:
     description: Certificate for peer authentication
-  tls.etcd.peer.private_key:
+  tls.peer.private_key:
     description: Private key for peer authentication
