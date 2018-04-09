@@ -180,13 +180,14 @@ jobs:
       manifest: git-cfcr-etcd-release/manifests/etcd.yml
       ops_files:
       - git-cfcr-etcd-release/manifests/ops-files/single-node.yml
-      - git-cfcr-etcd-release/manifests/ops-files/deployment-name.yml
+      - git-cfcr-etcd-release/manifests/ops-files/rename-network-and-deployment.yml
       stemcells:
       - stemcell/stemcell.tgz
       releases:
       - cfcr-etcd-release-tarball/cfcr-etcd-release.tgz
       vars:
         deployment-name: etcd-single-node
+        network-name: default
       cleanup: true
 
 - name: run-acceptance-etcd-single-node
@@ -260,10 +261,11 @@ jobs:
       releases:
       - kubo-etcd-release-tarball/kubo-etcd-release.tgz
       ops_files:
-      - git-kubo-etcd-release/manifests/operations/deployment-name.yml
+      - git-kubo-etcd-release/manifests/operations/rename-network-and-deployment.yml
       cleanup: true
       vars:
         deployment-name: etcd-migrate
+        network-name: default
   - task: set-and-check-value
     config:
       platform: linux
@@ -306,11 +308,12 @@ jobs:
       releases:
       - cfcr-etcd-release-tarball/cfcr-etcd-release.tgz
       ops_files:
-      - git-cfcr-etcd-release/manifests/ops-files/deployment-name.yml
+      - git-cfcr-etcd-release/manifests/ops-files/rename-network-and-deployment.yml
       - git-cfcr-etcd-release/manifests/ops-files/single-node.yml
       cleanup: true
       vars:
         deployment-name: etcd-migrate
+        network-name: default
   - task: check-value
     config:
       platform: linux
@@ -371,10 +374,11 @@ jobs:
       releases:
       - cfcr-etcd-release-tarball/cfcr-etcd-release.tgz
       ops_files:
-      - git-cfcr-etcd-release/manifests/ops-files/deployment-name.yml
+      - git-cfcr-etcd-release/manifests/ops-files/rename-network-and-deployment.yml
       cleanup: true
       vars:
         deployment-name: etcd-multiaz
+        network-name: default
   - task: delete-vm
     config:
       platform: linux
@@ -455,11 +459,12 @@ jobs:
       releases:
       - cfcr-etcd-release-tarball/cfcr-etcd-release.tgz
       ops_files:
-      - git-cfcr-etcd-release/manifests/ops-files/deployment-name.yml
+      - git-cfcr-etcd-release/manifests/ops-files/rename-network-and-deployment.yml
       - git-cfcr-etcd-release/manifests/ops-files/single-node.yml
       cleanup: true
       vars:
         deployment-name: etcd-scale
+        network-name: default
   - task: set-and-check-value
     config:
       platform: linux
@@ -487,10 +492,11 @@ jobs:
       releases:
       - cfcr-etcd-release-tarball/cfcr-etcd-release.tgz
       ops_files:
-      - git-cfcr-etcd-release/manifests/ops-files/deployment-name.yml
+      - git-cfcr-etcd-release/manifests/ops-files/rename-network-and-deployment.yml
       cleanup: true
       vars:
         deployment-name: etcd-scale
+        network-name: default
   - task: check-value
     config:
       platform: linux
