@@ -26,11 +26,11 @@ CLUSTER="<%= etcd_peers.join(",") %>"
 <% if spec.bootstrap %>
 if [ ! -d /var/vcap/store/etcd/member ]; then
   CLUSTER_STATE="new"
-  CLUSTER="<%= "#{spec.id}=https://#{spec.address}:2380" %>"
+  CLUSTER="<%= "#{spec.id}=https://master.cfcr.internal:2380" %>"
 fi
 <% else %>
 if [ ! -d /var/vcap/store/etcd/member ]; then
-  MEMBER_ADD_OUTPUT="$(ETCDCTL_API=3 etcdctl member add <%= spec.id %> --peer-urls "<%= "https://#{spec.address}:2380" %>")"
+  MEMBER_ADD_OUTPUT="$(ETCDCTL_API=3 etcdctl member add <%= spec.id %> --peer-urls "<%= "https://master.cfcr.internal:2380" %>")"
   CLUSTER="$(echo "${MEMBER_ADD_OUTPUT}" | grep "ETCD_INITIAL_CLUSTER=" | cut -d'=' -f2- | tr -d '"')"
 fi
 <% end -%>
@@ -39,9 +39,9 @@ fi
   --name="<%= spec.id %>" \
   --data-dir="/var/vcap/store/etcd" \
   --listen-peer-urls="https://0.0.0.0:2380" \
-  --initial-advertise-peer-urls="https://<%= spec.address %>:2380" \
+  --initial-advertise-peer-urls="https://master.cfcr.internal:2380" \
   --listen-client-urls="https://0.0.0.0:2379" \
-  --advertise-client-urls="https://<%= spec.address %>:2379" \
+  --advertise-client-urls="https://master.cfcr.internal:2379" \
   --initial-cluster="${CLUSTER}" \
   --initial-cluster-state="${CLUSTER_STATE}" \
   --client-cert-auth \

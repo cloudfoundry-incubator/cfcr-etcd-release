@@ -1,12 +1,8 @@
 #!/bin/bash
 
-<% etcd_endpoints = link('etcd').instances.map { |server| "https://#{server.address}:2379" } %>
+<% etcd_endpoints = "https://master.cfcr.internal:2379" %>
 
-etcd_endpoints="<%= etcd_endpoints.join(",") %>"
-
-if [[ "${LOCAL}" == "true" ]]; then
-  etcd_endpoints="https://<%= spec.address %>:2379"
-fi
+etcd_endpoints="<%= etcd_endpoints %>"
 
 if [[ "${ETCDCTL_API}" == "3" ]]; then
   /var/vcap/packages/etcd/bin/etcdctl \

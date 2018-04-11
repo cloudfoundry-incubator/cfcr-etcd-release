@@ -10,11 +10,11 @@ timeout 120 /var/vcap/jobs/etcd/bin/ensure-member-healthy
 
 export ETCDCTL_API=3
 
-if ! /var/vcap/jobs/etcd/bin/etcdctl member list | grep "https://<%= spec.address %>:2380"; then
+if ! /var/vcap/jobs/etcd/bin/etcdctl member list | grep "https://master.cfcr.internal:2380"; then
   member_id="$(/var/vcap/jobs/etcd/bin/etcdctl member list | grep "<%= spec.id %>" | cut -d',' -f1)"
 
   echo "Updating Member (${member_id}) peer url"
 
-  /var/vcap/jobs/etcd/bin/etcdctl member update "${member_id}" --peer-urls "https://<%= spec.address %>:2380"
+  /var/vcap/jobs/etcd/bin/etcdctl member update "${member_id}" --peer-urls "https://master.cfcr.internal:2380"
 fi
 <% end %>
