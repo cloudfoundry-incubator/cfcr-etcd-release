@@ -261,11 +261,10 @@ jobs:
       releases:
       - kubo-etcd-release-tarball/kubo-etcd-release.tgz
       ops_files:
-      - git-kubo-etcd-release/manifests/operations/rename-network-and-deployment.yml
+      - git-kubo-etcd-release/manifests/operations/deployment-name.yml
       cleanup: true
       vars:
         deployment-name: etcd-migrate
-        network-name: default
   - task: set-and-check-value
     config:
       platform: linux
