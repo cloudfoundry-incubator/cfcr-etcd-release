@@ -1,0 +1,16 @@
+<%=
+
+def get_etcd_alias(instance)
+  node_name = "#{instance.name.gsub('_','-')}-#{instance.index}"
+  "#{node_name}.#{link('etcd').p('etcd.dns_suffix')}"
+end
+
+aliases = {}
+if link('etcd').p('etcd.dns_suffix', false) != false
+  link('etcd').instances.each do |instance|
+      aliases.merge!({ get_etcd_alias(instance) => [instance.address] })
+  end
+end
+
+JSON.dump(aliases)
+%>

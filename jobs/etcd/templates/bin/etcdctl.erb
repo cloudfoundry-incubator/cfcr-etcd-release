@@ -1,11 +1,9 @@
 #!/bin/bash
 
-<% etcd_endpoints = link('etcd').instances.map { |server| "https://#{server.address}:2379" } %>
-
-etcd_endpoints="<%= etcd_endpoints.join(",") %>"
+source /var/vcap/jobs/etcd/bin/utils.sh
 
 if [[ "${LOCAL}" == "true" ]]; then
-  etcd_endpoints="https://<%= spec.address %>:2379"
+  etcd_endpoints="${etcd_endpoint_address}"
 fi
 
 if [[ "${ETCDCTL_API}" == "3" ]]; then

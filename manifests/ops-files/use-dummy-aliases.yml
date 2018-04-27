@@ -1,0 +1,24 @@
+---
+- type: replace
+  path: /instance_groups/name=etcd/jobs/-
+  value:
+    name: dummy-aliases
+    release: cfcr-etcd
+
+- type: replace
+  path: /instance_groups/name=etcd/jobs/name=etcd/properties/etcd?/dns_suffix?
+  value: dummy.etcd.internal
+
+- type: replace
+  path: /variables/name=tls_etcd/options/common_name
+  value: "*.dummy.etcd.internal"
+
+- type: replace
+  path: /variables/name=tls_etcd_peer/options/common_name
+  value: "*.dummy.etcd.internal"
+
+- type: remove
+  path: /variables/name=tls_etcd/options/alternative_names
+
+- type: remove
+  path: /variables/name=tls_etcd_peer/options/alternative_names

@@ -1,0 +1,11 @@
+---
+name: dummy-aliases
+
+templates:
+  dns/aliases.json.erb: dns/aliases.json
+
+consumes:
+- name: etcd
+  type: etcd
+
+properties: {}

@@ -1,8 +1,7 @@
 #!/bin/bash
 
 set -euo pipefail
-
-<% etcd_peers = link('etcd').instances.map{ |server| "#{server.id}=https://#{server.address}:2380" } %>
+source /var/vcap/jobs/etcd/bin/utils.sh
 
 # When `spec.bootstrap` is true and there is no existing etcd member directory,
 # we can assume that we are the first node starting in a new cluster. In this case
@@ -21,16 +20,16 @@ set -euo pipefail
 # etcd node normally.
 
 CLUSTER_STATE="existing"
-CLUSTER="<%= etcd_peers.join(",") %>"
+CLUSTER=$etcd_peers
 
 <% if spec.bootstrap %>
 if [ ! -d /var/vcap/store/etcd/member ]; then
   CLUSTER_STATE="new"
-  CLUSTER="<%= "#{spec.id}=https://#{spec.address}:2380" %>"
+  CLUSTER="<%= "#{spec.id}" %>=${etcd_peer_address}"
 fi
 <% else %>
 if [ ! -d /var/vcap/store/etcd/member ]; then
-  MEMBER_ADD_OUTPUT="$(ETCDCTL_API=3 etcdctl member add <%= spec.id %> --peer-urls "<%= "https://#{spec.address}:2380" %>")"
+  MEMBER_ADD_OUTPUT="$(ETCDCTL_API=3 etcdctl member add <%= spec.id %> --peer-urls "${etcd_peer_address}")"
   CLUSTER="$(echo "${MEMBER_ADD_OUTPUT}" | grep "ETCD_INITIAL_CLUSTER=" | cut -d'=' -f2- | tr -d '"')"
 fi
 <% end -%>
@@ -39,9 +38,9 @@ fi
   --name="<%= spec.id %>" \
   --data-dir="/var/vcap/store/etcd" \
   --listen-peer-urls="https://0.0.0.0:2380" \
-  --initial-advertise-peer-urls="https://<%= spec.address %>:2380" \
+  --initial-advertise-peer-urls="${etcd_peer_address}" \
   --listen-client-urls="https://0.0.0.0:2379" \
-  --advertise-client-urls="https://<%= spec.address %>:2379" \
+  --advertise-client-urls="${etcd_endpoint_address}" \
   --initial-cluster="${CLUSTER}" \
   --initial-cluster-state="${CLUSTER_STATE}" \
   --client-cert-auth \

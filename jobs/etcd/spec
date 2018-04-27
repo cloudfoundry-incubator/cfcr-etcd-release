@@ -9,6 +9,7 @@ templates:
   bin/post-start.erb: bin/post-start
   bin/pre-start.erb: bin/pre-start
   bin/setup.erb: bin/setup
+  bin/utils.sh.erb: bin/utils.sh
   config/bpm.yml.erb: config/bpm.yml
   config/etcd-ca.crt.erb: config/etcd-ca.crt
   config/etcd.crt.erb: config/etcd.crt
@@ -27,6 +28,7 @@ provides:
 - name: etcd
   type: etcd
   properties:
+  - etcd.dns_suffix
   - tls.etcdctl.ca
   - tls.etcdctl.certificate
   - tls.etcdctl.private_key
@@ -36,6 +38,8 @@ consumes:
   type: etcd
 
 properties:
+  etcd.dns_suffix:
+    description: If provided, used as a DNS suffix for all nodes in the etcd cluster
   tls.etcd.ca:
     description: CA for etcd client and server authentication
   tls.etcd.certificate:
