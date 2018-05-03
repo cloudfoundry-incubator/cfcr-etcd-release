@@ -4,9 +4,8 @@ set -euo pipefail
 source /var/vcap/jobs/etcd/bin/utils.sh
 
 # We support transitioning to this etcd release from an existing 1 node
-# cluster. This block checks the peer url and updates it to the default BOSH
-# DNS address.
-<% if link('etcd').instances.size == 1 %>
+# cluster. This block checks the peer url and updates it to the correct DNS
+# address. This covers upgrading from non-alias'd clusters to alias'd clusters.
 timeout 120 /var/vcap/jobs/etcd/bin/ensure-member-healthy
 
 export ETCDCTL_API=3
@@ -18,4 +17,3 @@ if ! /var/vcap/jobs/etcd/bin/etcdctl member list | grep "${etcd_peer_address}"; 
 
   /var/vcap/jobs/etcd/bin/etcdctl member update "${member_id}" --peer-urls "${etcd_peer_address}"
 fi
-<% end %>
