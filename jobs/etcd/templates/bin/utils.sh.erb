@@ -13,4 +13,4 @@ etcd_endpoint_address="<%= get_url(spec, 2379) %>"
 etcd_endpoints="<%= link('etcd').instances.map { |server| get_url(server, 2379) }.join(",") %>"
 
 etcd_peer_address="<%= get_url(spec, 2380) %>"
-etcd_peers="<%= link('etcd').instances.map { |server| "#{server.address}=#{get_url(server, 2380)}" }.join(",") %>"
+etcd_peers="<%= link('etcd').instances.map { |server| "#{server.id}=#{get_url(server, 2380)}" }.join(",") %>"
