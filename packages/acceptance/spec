@@ -5,4 +5,4 @@ dependencies:
 - golang-1.10-linux
 
 files:
-- acceptance/**/*
+- acceptance/**/*.go
