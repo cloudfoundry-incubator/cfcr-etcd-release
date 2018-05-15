@@ -6,6 +6,3 @@ dependencies:
 
 files:
 - acceptance/**/*
-
-excluded_files:
-- acceptance/vendor/github.com/coreos/etcd/cmd/*
