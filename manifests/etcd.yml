@@ -10,13 +10,13 @@ releases:
 - name: cfcr-etcd
   version: latest
 - name: bpm
-  version: "0.6.0"
-  url: "https://bosh.io/d/github.com/cloudfoundry-incubator/bpm-release?v=0.6.0"
-  sha1: "4f0f239abdc801d71de9063625aa56e3c42634b5"
+  sha1: 5a03b988c725c6b5a1aed247c8c23c2bff9d421b
+  url: https://bosh.io/d/github.com/cloudfoundry-incubator/bpm-release?v=0.4.0
+  version: 0.4.0
 - name: bosh-dns
-  version: "1.6.0"
-  url: "https://bosh.io/d/github.com/cloudfoundry/bosh-dns-release?v=1.6.0"
-  sha1: "bb7f1cf29c4186fdba4a049fb6feb5638227d9a4"
+  sha1: 9231b7c7d2f6aa85e0cb77fdeef7add54fdb3f1a
+  url: https://bosh.io/d/github.com/cloudfoundry/bosh-dns-release?v=0.2.0
+  version: 0.2.0
 
 addons:
 - name: bosh-dns
@@ -40,7 +40,7 @@ instance_groups:
 - name: etcd
   azs: [z1,z2,z3]
   instances: 3
-  persistent_disk: 10240
+  persistent_disk_type: 10GB
   vm_type: default
   stemcell: default
   networks:
