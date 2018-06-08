@@ -1,5 +1,8 @@
 # CFCR-ETCD release
 
+
+> This project is intended as a sub-component within the [Cloud Foundry Container Runtime](https://docs-cfcr.cfapps.io/) project, usage outside of that are not currently supported by the CFCR team.
+
 ## Running the acceptance tests
 
 ```
