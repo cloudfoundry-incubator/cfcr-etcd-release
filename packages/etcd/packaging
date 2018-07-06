@@ -1,6 +1,6 @@
 set -e
 
-ETCD_VERSION="3.3.1"
+ETCD_VERSION="3.3.*"
 
 mkdir "${BOSH_INSTALL_TARGET:?}/bin"
 tar xvf etcd/etcd-v${ETCD_VERSION}-linux-amd64.tar.gz
