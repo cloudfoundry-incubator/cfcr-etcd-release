@@ -1,0 +1,9 @@
+---
+name: bbr-etcd
+
+templates:
+  backup.erb: bin/bbr/backup
+
+packages: []
+
+properties: {}

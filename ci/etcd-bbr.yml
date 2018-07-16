@@ -1,0 +1,87 @@
+resource_types:
+- name: bosh-deployment
+  type: docker-image
+  source:
+    repository: cloudfoundry/bosh-deployment-resource
+
+resources:
+- name: git-cfcr-etcd-release
+  type: git
+  source:
+    uri: https://github.com/cloudfoundry-incubator/cfcr-etcd-release
+    branch: master
+
+- name: stemcell
+  type: bosh-io-stemcell
+  source:
+    name: bosh-google-kvm-ubuntu-trusty-go_agent
+
+- name: single-node-deployment
+  type: bosh-deployment
+  source:
+    deployment: bbr-etcd-single-node
+    target: ((cfcr-etcd-bosh.target))
+    client: ((cfcr-etcd-bosh.client))
+    client_secret: ((cfcr-etcd-bosh.client_secret))
+    ca_cert: ((cfcr-etcd-bosh.ca_cert))
+    jumpbox_url: ((cfcr-etcd-bosh.jumpbox_url))
+    jumpbox_ssh_key: ((cfcr-etcd-bosh.jumpbox_ssh_key))
+
+- name: bbr-github-release
+    type: github-release
+    source:
+      owner: cloudfoundry-incubator
+      repository: bosh-backup-and-restore
+      access_token: ((github-kubo-gitbot-access-token))
+
+jobs:
+- name: deploy-etcd-single-node
+  serial: true
+  serial_groups: [etcd-single-node]
+  plan:
+  - aggregate:
+    - get: git-cfcr-etcd-release
+      trigger: true
+    - get: stemcell
+  - task: create-release
+    config:
+      inputs:
+      - name: git-cfcr-etcd-release
+      outputs:
+      - name: cfcr-etcd-release-tarball
+      platform: linux
+      image_resource:
+        type: docker-image
+        source: {repository: pcfkubo/kubo-ci}
+      run:
+        path: bash
+        args:
+        - -c
+        - |
+          set -exu
+          bosh create-release --dir=git-cfcr-etcd-release --tarball=cfcr-etcd-release-tarball/cfcr-etcd-release.tgz --timestamp-version
+  - put: single-node-deployment
+    params:
+      manifest: git-cfcr-etcd-release/manifests/etcd.yml
+      ops_files:
+      - git-cfcr-etcd-release/manifests/ops-files/single-node.yml
+      - git-cfcr-etcd-release/manifests/ops-files/rename-network-and-deployment.yml
+      - git-cfcr-etcd-release/manifests/ops-files/enable-bbr.yml
+      stemcells:
+      - stemcell/stemcell.tgz
+      releases:
+      - cfcr-etcd-release-tarball/cfcr-etcd-release.tgz
+      vars:
+        deployment-name: bbr-etcd-single-node
+        network-name: default
+      cleanup: true
+
+- name: run-bbr-tests
+  serial: true
+  serial_groups: [etcd-single-node]
+  plan:
+  - aggregate:
+    - get: git-cfcr-etcd-release
+    - get: bbr-release
+  - task: run-tests
+    file: git-cfcr-etcd-release/ci/tasks/run-bbr-tests.yml

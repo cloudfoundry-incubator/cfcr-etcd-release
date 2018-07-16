@@ -1,0 +1,23 @@
+platform: linux
+
+image_resource:
+  type: docker-image
+  source:
+    repository: pcfkubo/kubo-ci
+
+inputs:
+  - name: git-cfcr-etcd-release
+  - name: bbr-release
+
+params:
+  JUMPBOX_PRIVATE_KEY:
+  JUMPBOX_USERNAME:
+  JUMPBOX_HOST:
+  BOSH_ENVIRONMENT:
+  BOSH_DEPLOYMENT:
+  BOSH_CLIENT:
+  BOSH_CLIENT_SECRET:
+  BOSH_CA_CERT:
+
+run:
+  path: git-cfcr-etcd-release/ci/scripts/run-bbr-tests.sh
