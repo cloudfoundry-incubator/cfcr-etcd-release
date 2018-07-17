@@ -83,7 +83,18 @@ jobs:
   - aggregate:
     - get: git-cfcr-etcd-release
       passed: ['deploy-etcd-single-node']
+      trigger: true
     - get: bbr-release
       resource: bbr-github-release
   - task: run-tests
     file: git-cfcr-etcd-release/ci/tasks/run-bbr-tests.yml
+    privileged: true
+    params:
+      JUMPBOX_PRIVATE_KEY: ((cfcr-etcd-bosh.jumpbox_ssh_key))
+      JUMPBOX_USERNAME: jumpbox
+      JUMPBOX_HOST: ((cfcr-etcd-bosh.jumpbox_url))
+      BOSH_ENVIRONMENT: ((cfcr-etcd-bosh.target))
+      BOSH_DEPLOYMENT: bbr-etcd-single-node
+      BOSH_CLIENT: ((cfcr-etcd-bosh.client))
+      BOSH_CLIENT_SECRET: ((cfcr-etcd-bosh.client_secret))
+      BOSH_CA_CERT: ((cfcr-etcd-bosh.ca_cert))
