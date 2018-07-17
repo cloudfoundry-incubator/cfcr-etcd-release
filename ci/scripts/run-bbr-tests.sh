@@ -21,8 +21,11 @@ sshuttle_pid="$!"
 
 trap "kill ${sshuttle_pid}" EXIT
 
+pushd git-cfcr-etcd-release
+  source .envrc
+popd
+
 pushd git-cfcr-etcd-release/src/bbr
-  source ../../.envrc
   dep ensure
   ginkgo
 popd
