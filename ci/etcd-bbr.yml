@@ -98,3 +98,15 @@ jobs:
       BOSH_CLIENT: ((cfcr-etcd-bosh.client))
       BOSH_CLIENT_SECRET: ((cfcr-etcd-bosh.client_secret))
       BOSH_CA_CERT: ((cfcr-etcd-bosh.ca_cert))
+
+- name: delete-etcd-single-node
+  serial: true
+  serial_groups: [etcd]
+  plan:
+  - get: git-cfcr-etcd-release
+    passed: ['run-bbr-tests']
+    trigger: true
+  - put: single-node-deployment
+    params:
+      delete:
+        enabled: true
