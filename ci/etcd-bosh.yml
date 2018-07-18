@@ -4,8 +4,25 @@ resource_types:
   source:
     repository: cfinfrastructure/bbl-state-resource
 
+- name: gcs
+  type: docker-image
+  source:
+    repository: frodenas/gcs-resource
 
 resources:
+- name: git-cfcr-etcd-release
+  type: git
+  source:
+    uri: https://github.com/cloudfoundry-incubator/cfcr-etcd-release
+    branch: master
+
+- name: gcs-bbl-state
+  type: gcs
+  source:
+    json_key: ((gcs-json-key))
+    bucket: kubo-pipeline-store
+    versioned_file: etcd-bosh
+
 - name: bbl-state
   type: bbl-state-resource
   source:
@@ -18,7 +35,32 @@ resources:
 jobs:
 - name: deploy-bosh
   plan:
+  - get: gcs-bbl-state
+  - get: git-cfcr-etcd-release
+  - task: unpack-bbl-state
+    config:
+      platform: linux
+      image_resource:
+        type: docker-image
+        source:
+          repository: bash
+      inputs:
+      - name: gcs-bbl-state
+      outputs:
+      - name: orig-bbl-state
+      run:
+        path: bash
+        args:
+        - -c
+        - |
+          set -euo pipefail
+          mkdir -p bbl-state
+          cd bbl-state
+          tar xvf ../gcs-bbl-state/etcd-bosh
+          cp ../git-cfcr-etcd-release/ci/bbl-patch/*.tf terraform/
+
   - put: bbl-state
     params:
       command: up
       name: etcd-bosh
+      state_dir: orig-bbl-state
