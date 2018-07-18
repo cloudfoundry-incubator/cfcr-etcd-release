@@ -46,6 +46,7 @@ jobs:
           repository: bash
       inputs:
       - name: gcs-bbl-state
+      - name: git-cfcr-etcd-release
       outputs:
       - name: orig-bbl-state
       run:
@@ -54,8 +55,7 @@ jobs:
         - -c
         - |
           set -euo pipefail
-          mkdir -p bbl-state
-          cd bbl-state
+          cd orig-bbl-state
           tar xvf ../gcs-bbl-state/etcd-bosh
           cp ../git-cfcr-etcd-release/ci/bbl-patch/*.tf terraform/
 
