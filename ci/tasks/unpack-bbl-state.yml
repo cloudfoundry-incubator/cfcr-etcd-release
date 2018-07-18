@@ -1,0 +1,17 @@
+platform: linux
+image_resource:
+  type: docker-image
+  source:
+    repository: bash
+inputs:
+- name: gcs-bbl-state
+outputs:
+- name: bbl-state
+run:
+  path: bash
+  args:
+  - -c
+  - |
+    set -euo pipefail
+    cd bbl-state
+    tar xvf ../gcs-bbl-state/etcd-bosh
