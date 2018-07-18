@@ -1,0 +1,24 @@
+resource_types:
+- name: bbl-state-resource
+  type: docker-image
+  source:
+    repository: cfinfrastructure/bbl-state-resource
+
+
+resources:
+- name: bbl-state
+  type: bbl-state-resource
+  source:
+    bucket: kubo-pipeline-store
+    iaas: gcp
+    gcp_region: us-central1
+    gcp_service_account_key: ((gcp-service-account))
+
+
+jobs:
+- name: deploy-bosh
+  plan:
+  - put: bbl-state
+    params:
+      command: up
+      name: etcd-bosh
