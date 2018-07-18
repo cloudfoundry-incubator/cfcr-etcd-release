@@ -4,6 +4,11 @@ resource_types:
   source:
     repository: cloudfoundry/bosh-deployment-resource
 
+- name: gcs
+  type: docker-image
+  source:
+    repository: frodenas/gcs-resource
+
 resources:
 - name: git-cfcr-etcd-release
   type: git
@@ -16,16 +21,17 @@ resources:
   source:
     name: bosh-google-kvm-ubuntu-trusty-go_agent
 
+- name: gcs-bbl-state
+  type: gcs
+  source:
+    json_key: ((gcs-json-key))
+    bucket: kubo-pipeline-store
+    versioned_file: etcd-bosh
+
 - name: single-node-deployment
   type: bosh-deployment
   source:
     deployment: bbr-etcd-single-node
-    target: ((cfcr-etcd-bosh.target))
-    client: ((cfcr-etcd-bosh.client))
-    client_secret: ((cfcr-etcd-bosh.client_secret))
-    ca_cert: ((cfcr-etcd-bosh.ca_cert))
-    jumpbox_url: ((cfcr-etcd-bosh.jumpbox_url))
-    jumpbox_ssh_key: ((cfcr-etcd-bosh.jumpbox_ssh_key))
 
 - name: bbr-github-release
   type: github-release
@@ -43,6 +49,27 @@ jobs:
     - get: git-cfcr-etcd-release
       trigger: true
     - get: stemcell
+    - get: gcs-bbl-state
+  - task: unpack-bbl-state
+    config:
+      platform: linux
+      image_resource:
+        type: docker-image
+        source:
+          repository: bash
+      inputs:
+      - name: gcs-bbl-state
+      outputs:
+      - name: bbl-state
+      run:
+        path: bash
+        args:
+        - -c
+        - |
+          set -euo pipefail
+          mkdir -p bbl-state
+          cd bbl-state
+          tar xvf ../gcs-bbl-state/etcd-bosh
   - task: create-release
     config:
       inputs:
@@ -62,6 +89,7 @@ jobs:
           bosh create-release --dir=git-cfcr-etcd-release --tarball=cfcr-etcd-release-tarball/cfcr-etcd-release.tgz --timestamp-version
   - put: single-node-deployment
     params:
+      source_file: bbl-state/metadata
       manifest: git-cfcr-etcd-release/manifests/etcd.yml
       ops_files:
       - git-cfcr-etcd-release/manifests/ops-files/single-node.yml

@@ -5,18 +5,34 @@ set -euo pipefail
 tar xvf bbr-release/bbr-*.tar
 mv releases/bbr /usr/local/bin/bbr
 
-jumpbox_private_key="$(mktemp)"
+version="v6.8.4"
+wget https://github.com/cloudfoundry/bosh-bootloader/releases/download/${version}/bbl-${version}_linux_x86-64 -O /usr/local/bin/bbl
+chmod +x /usr/local/bin/bbl
+
+pushd bbl-state
+  eval "$(bbl print-env)"
+  jumpbox_host="$(bosh int --path /jumpbox_url <(bbl outputs))"
+popd
+
 BOSH_CA_CERT_PATH="$(mktemp)"
-
-echo "${JUMPBOX_PRIVATE_KEY}" > "${jumpbox_private_key}"
 echo "${BOSH_CA_CERT}" > "${BOSH_CA_CERT_PATH}"
-
-chmod 0600 "${jumpbox_private_key}"
 export BOSH_CA_CERT_PATH
 
-ssh_cmd="ssh -i ${jumpbox_private_key} -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null"
+credhub login
 
-sshuttle -r "${JUMPBOX_USERNAME}@${JUMPBOX_HOST}" "10.0.0.0/16" -e "${ssh_cmd}" &
+ETCD_CLIENT_CERT="$(mktemp)"
+ETCD_KEY_FILE="$(mktemp)"
+ETCD_CA="$(mktemp)"
+
+credhub get -n /bosh-etcd-bosh/bbr-etcd-single-node/tls_etcdctl --output-json | jq -r .value.certificate > "$ETCD_CLIENT_CERT"
+credhub get -n /bosh-etcd-bosh/bbr-etcd-single-node/tls_etcdctl --output-json | jq -r .value.private_key > "$ETCD_KEY_FILE"
+credhub get -n /bosh-etcd-bosh/bbr-etcd-single-node/tls_etcd --output-json | jq -r .value.ca > "$ETCD_CA"
+
+ETCD_ENDPOINT="https://$(bosh vms --json | jq -r .Tables[0].Rows[0].ips):2379"
+export ETCD_ENDPOINT ETCD_CLIENT_CERT ETCD_KEY_FILE ETCD_CA
+
+ssh_cmd="ssh -i ${JUMPBOX_PRIVATE_KEY} -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null"
+sshuttle -r "jumpbox@${jumpbox_host}" "10.0.0.0/16" -e "${ssh_cmd}" &
 sshuttle_pid="$!"
 
 trap "kill ${sshuttle_pid}" EXIT

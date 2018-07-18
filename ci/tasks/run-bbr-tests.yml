@@ -8,16 +8,10 @@ image_resource:
 inputs:
   - name: git-cfcr-etcd-release
   - name: bbr-release
+  - name: bbl-state
 
 params:
-  JUMPBOX_PRIVATE_KEY:
-  JUMPBOX_USERNAME:
-  JUMPBOX_HOST:
-  BOSH_ENVIRONMENT:
-  BOSH_DEPLOYMENT:
-  BOSH_CLIENT:
-  BOSH_CLIENT_SECRET:
-  BOSH_CA_CERT:
+  BOSH_DEPLOYMENT: bbr-etcd-single-node
 
 run:
   path: git-cfcr-etcd-release/ci/scripts/run-bbr-tests.sh

@@ -1,5 +1,16 @@
 #!/bin/bash
 
-BBR_ARTIFACT_FILE_PATH="${BBR_ARTIFACT_DIRECTORY}/snapshot-file"
+set -euo pipefail
 
-echo "This is a backup" > $BBR_ARTIFACT_FILE_PATH
+source /var/vcap/jobs/etcd/bin/utils.sh
+
+BBR_ARTIFACT_FILE_PATH="${BBR_ARTIFACT_DIRECTORY}/snapshotdb"
+
+export ETCDCTL_API=3
+
+/var/vcap/packages/etcd/bin/etcdctl \
+  --cacert /var/vcap/jobs/etcd/config/etcdctl-ca.crt \
+  --cert /var/vcap/jobs/etcd/config/etcdctl.crt \
+  --key /var/vcap/jobs/etcd/config/etcdctl.key \
+  --endpoints "${etcd_endpoint_address}" \
+  snapshot save ${BBR_ARTIFACT_FILE_PATH}
