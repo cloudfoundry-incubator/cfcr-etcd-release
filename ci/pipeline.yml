@@ -18,8 +18,9 @@ resources:
 - name: git-cfcr-etcd-release
   type: git
   source:
-    uri: https://github.com/cloudfoundry-incubator/cfcr-etcd-release
+    uri: git@github.com:cloudfoundry-incubator/cfcr-etcd-release
     branch: master
+    private_key: ((git-ssh-key.private_key))
 
 - name: git-kubo-etcd-release
   type: git
