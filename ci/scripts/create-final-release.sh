@@ -22,7 +22,7 @@ EOF
 bosh create-release --final --version=${version} --sha2 --tarball ../cfcr-etcd-release/cfcr-etcd-release-${version}.tgz
 
 echo "v${version}" >../cfcr-etcd-release/name
-echo "" > ../etcd-release/body
+echo "" > ../cfcr-etcd-release/body
 
 git checkout -b tmp/release
 git add .
