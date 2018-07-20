@@ -95,7 +95,6 @@ resources:
     gcp_region: us-central1
     gcp_service_account_key: ((gcp-service-account))
 
-
 - name: gcs-bbl-state
   type: gcs
   source:
@@ -114,6 +113,24 @@ resources:
     owner: cloudfoundry-incubator
     repository: bosh-backup-and-restore
     access_token: ((github-kubo-gitbot-access-token))
+
+- name: cfcr-etcd-version
+  type: semver
+  source:
+    initial_version: 1.4.0
+    driver: gcs
+    key: versions/cfcr-etcd-version
+    json_key: ((gcs-json-key))
+    bucket: kubo-pipeline-store
+
+- name: gh-release-cfcr-etcd-release
+  type: github-release
+  source:
+    owner: cloudfoundry-incubator
+    repository: cfcr-etcd-release
+    access_token: ((github-token-key))
+    drafts: true
+    pre_release: true
 
 groups:
 - name: all
@@ -134,6 +151,7 @@ groups:
   - run-bbr-tests
   - bbr-delete-etcd-single-node
   - deploy-bosh
+  - shipit
 - name: bosh-etcd
   jobs:
   - deploy-bosh
@@ -716,3 +734,37 @@ jobs:
       command: up
       name: etcd-bosh
       state_dir: orig-bbl-state
+
+- name: shipit
+  plan:
+  - aggregate:
+    - get: git-cfcr-etcd-release
+      passed:
+      - delete-etcd
+      - delete-etcd-multiaz
+      - delete-etcd-single-node
+      - delete-etcd-migrate
+      - bbr-delete-etcd-single-node
+      - delete-etcd-scale
+    - get: cfcr-etcd-version
+  - task: create-final-release
+    file: git-cfcr-etcd-release/ci/tasks/create-final-release.yml
+    params:
+      ACCESS_KEY_ID: ((gcs-access-key-id))
+      SECRET_ACCESS_KEY: ((gcs-secret-access-key))
+  - aggregate:
+    - do:
+      - put: git-cfcr-etcd-release
+        params:
+          repository: git-cfcr-etcd-release-output
+          merge: true
+      - put: gh-release-cfcr-etcd-release
+        params:
+          name: cfcr-etcd-release/name
+          tag: cfcr-etcd-version/version
+          tag_prefix: v
+          body: cfcr-etcd-release/body
+          globs: ["cfcr-etcd-release/*.tgz"]
+  - put: cfcr-etcd-version
+    params:
+      bump: minor
