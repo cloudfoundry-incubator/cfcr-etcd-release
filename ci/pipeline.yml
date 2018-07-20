@@ -1,8 +1,18 @@
 resource_types:
+- name: bbl-state-resource
+  type: docker-image
+  source:
+    repository: cfinfrastructure/bbl-state-resource
+
 - name: bosh-deployment
   type: docker-image
   source:
     repository: cloudfoundry/bosh-deployment-resource
+
+- name: gcs
+  type: docker-image
+  source:
+    repository: frodenas/gcs-resource
 
 resources:
 - name: git-cfcr-etcd-release
@@ -76,6 +86,76 @@ resources:
     ca_cert: ((cfcr-etcd-bosh.ca_cert))
     jumpbox_url: ((cfcr-etcd-bosh.jumpbox_url))
     jumpbox_ssh_key: ((cfcr-etcd-bosh.jumpbox_ssh_key))
+
+- name: bbl-state
+  type: bbl-state-resource
+  source:
+    bucket: kubo-pipeline-store
+    iaas: gcp
+    gcp_region: us-central1
+    gcp_service_account_key: ((gcp-service-account))
+
+
+- name: gcs-bbl-state
+  type: gcs
+  source:
+    json_key: ((gcs-json-key))
+    bucket: kubo-pipeline-store
+    versioned_file: etcd-bosh
+
+- name: bbr-single-node-deployment
+  type: bosh-deployment
+  source:
+    deployment: bbr-etcd-single-node
+
+- name: bbr-github-release
+  type: github-release
+  source:
+    owner: cloudfoundry-incubator
+    repository: bosh-backup-and-restore
+    access_token: ((github-kubo-gitbot-access-token))
+
+groups:
+- name: all
+  jobs:
+  - deploy-etcd
+  - run-acceptance-etcd
+  - delete-etcd
+  - deploy-etcd-single-node
+  - run-acceptance-etcd-single-node
+  - delete-etcd-single-node
+  - migrate-from-kubo-etcd
+  - delete-etcd-migrate
+  - AZ-failure-test
+  - delete-etcd-multiaz
+  - scale-from-1-to-3-nodes
+  - delete-etcd-scale
+  - bbr-deploy-etcd-single-node
+  - run-bbr-tests
+  - bbr-delete-etcd-single-node
+  - deploy-bosh
+- name: bosh-etcd
+  jobs:
+  - deploy-bosh
+- name: bbr-tests
+  jobs:
+  - bbr-deploy-etcd-single-node
+  - run-bbr-tests
+  - bbr-delete-etcd-single-node
+- name: etcd-acceptance-tests
+  jobs:
+  - deploy-etcd
+  - run-acceptance-etcd
+  - delete-etcd
+  - deploy-etcd-single-node
+  - run-acceptance-etcd-single-node
+  - delete-etcd-single-node
+  - migrate-from-kubo-etcd
+  - delete-etcd-migrate
+  - AZ-failure-test
+  - delete-etcd-multiaz
+  - scale-from-1-to-3-nodes
+  - delete-etcd-scale
 
 jobs:
 - name: deploy-etcd
@@ -526,3 +606,113 @@ jobs:
     params:
       delete:
         enabled: true
+
+- name: bbr-deploy-etcd-single-node
+  serial: true
+  serial_groups: [bbr-etcd-single-node]
+  plan:
+  - aggregate:
+    - get: git-cfcr-etcd-release
+      trigger: true
+    - get: stemcell
+    - get: gcs-bbl-state
+  - task: unpack-bbl-state
+    file: git-cfcr-etcd-release/ci/tasks/unpack-bbl-state.yml
+  - task: create-release
+    config:
+      inputs:
+      - name: git-cfcr-etcd-release
+      outputs:
+      - name: cfcr-etcd-release-tarball
+      platform: linux
+      image_resource:
+        type: docker-image
+        source: {repository: pcfkubo/kubo-ci}
+      run:
+        path: bash
+        args:
+        - -c
+        - |
+          set -exu
+          bosh create-release --dir=git-cfcr-etcd-release --tarball=cfcr-etcd-release-tarball/cfcr-etcd-release.tgz --timestamp-version
+  - put: bbr-single-node-deployment
+    params:
+      source_file: bbl-state/metadata
+      manifest: git-cfcr-etcd-release/manifests/etcd.yml
+      ops_files:
+      - git-cfcr-etcd-release/manifests/ops-files/single-node.yml
+      - git-cfcr-etcd-release/manifests/ops-files/rename-network-and-deployment.yml
+      - git-cfcr-etcd-release/manifests/ops-files/enable-bbr.yml
+      stemcells:
+      - stemcell/stemcell.tgz
+      releases:
+      - cfcr-etcd-release-tarball/cfcr-etcd-release.tgz
+      vars:
+        deployment-name: bbr-etcd-single-node
+        network-name: default
+      cleanup: true
+
+- name: run-bbr-tests
+  serial: true
+  serial_groups: [bbr-etcd-single-node]
+  plan:
+  - aggregate:
+    - get: git-cfcr-etcd-release
+      passed: ['bbr-deploy-etcd-single-node']
+      trigger: true
+    - get: bbr-release
+      resource: bbr-github-release
+    - get: gcs-bbl-state
+  - task: unpack-bbl-state
+    file: git-cfcr-etcd-release/ci/tasks/unpack-bbl-state.yml
+  - task: run-tests
+    file: git-cfcr-etcd-release/ci/tasks/run-bbr-tests.yml
+    privileged: true
+
+- name: bbr-delete-etcd-single-node
+  serial: true
+  serial_groups: [bbr-single-node-deployment]
+  plan:
+  - get: git-cfcr-etcd-release
+    passed: ['run-bbr-tests']
+    trigger: true
+  - get: gcs-bbl-state
+  - task: unpack-bbl-state
+    file: git-cfcr-etcd-release/ci/tasks/unpack-bbl-state.yml
+  - put: bbr-single-node-deployment
+    params:
+      source_file: bbl-state/metadata
+      delete:
+        enabled: true
+
+- name: deploy-bosh
+  plan:
+  - get: gcs-bbl-state
+  - get: git-cfcr-etcd-release
+  - task: unpack-bbl-state
+    config:
+      platform: linux
+      image_resource:
+        type: docker-image
+        source:
+          repository: bash
+      inputs:
+      - name: gcs-bbl-state
+      - name: git-cfcr-etcd-release
+      outputs:
+      - name: orig-bbl-state
+      run:
+        path: bash
+        args:
+        - -c
+        - |
+          set -euo pipefail
+          cd orig-bbl-state
+          tar xvf ../gcs-bbl-state/etcd-bosh
+          cp ../git-cfcr-etcd-release/ci/bbl-patch/*.tf terraform/
+
+  - put: bbl-state
+    params:
+      command: up
+      name: etcd-bosh
+      state_dir: orig-bbl-state
