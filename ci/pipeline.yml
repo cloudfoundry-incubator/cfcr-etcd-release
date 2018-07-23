@@ -444,6 +444,8 @@ jobs:
         enabled: true
 
 - name: AZ-failure-test
+  serial: true
+  serial_groups: [etcd-az-failure]
   plan:
   - aggregate:
     - get: git-cfcr-etcd-release
@@ -516,6 +518,8 @@ jobs:
         path: git-cfcr-etcd-release/ci/scripts/run-acceptance-errand.sh
 
 - name: delete-etcd-multiaz
+  serial: true
+  serial_groups: [etcd-az-failure]
   plan:
   - get: git-cfcr-etcd-release
     passed: [ AZ-failure-test ]
