@@ -129,7 +129,7 @@ resources:
   source:
     owner: cloudfoundry-incubator
     repository: cfcr-etcd-release
-    access_token: ((github-token-key))
+    access_token: ((cfcr-user-release-token))
     drafts: true
     pre_release: true
 
@@ -753,19 +753,17 @@ jobs:
     params:
       ACCESS_KEY_ID: ((gcs-access-key-id))
       SECRET_ACCESS_KEY: ((gcs-secret-access-key))
-  - aggregate:
-    - do:
-      - put: git-cfcr-etcd-release
-        params:
-          repository: git-cfcr-etcd-release-output
-          merge: true
-      - put: gh-release-cfcr-etcd-release
-        params:
-          name: cfcr-etcd-release/name
-          tag: cfcr-etcd-version/version
-          tag_prefix: v
-          body: cfcr-etcd-release/body
-          globs: ["cfcr-etcd-release/*.tgz"]
+  - put: git-cfcr-etcd-release
+    params:
+      repository: git-cfcr-etcd-release-output
+      merge: true
+  - put: gh-release-cfcr-etcd-release
+    params:
+      name: cfcr-etcd-release/name
+      tag: cfcr-etcd-version/version
+      tag_prefix: v
+      body: cfcr-etcd-release/body
+      globs: ["cfcr-etcd-release/*.tgz"]
   - put: cfcr-etcd-version
     params:
       bump: minor
