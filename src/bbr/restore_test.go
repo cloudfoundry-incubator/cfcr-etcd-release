@@ -74,8 +74,8 @@ var _ = Describe("Restore", func() {
 		globbedFiles, err := filepath.Glob(bbrDir + "/" + deploymentName + "*")
 		Expect(err).ToNot(HaveOccurred())
 		Expect(globbedFiles).To(HaveLen(1))
+
 		restoreCmd := exec.Command("bbr", append(bbrArgs, "restore", "--artifact-path", globbedFiles[0])...)
-		backupCmd.Dir = bbrDir
 		session, err = gexec.Start(restoreCmd, GinkgoWriter, GinkgoWriter)
 		Expect(err).ToNot(HaveOccurred())
 		Eventually(session, "1m").Should(gexec.Exit(0))
