@@ -13,4 +13,4 @@ export ETCDCTL_API=3
   --cert /var/vcap/jobs/etcd/config/etcdctl.crt \
   --key /var/vcap/jobs/etcd/config/etcdctl.key \
   --endpoints "${etcd_endpoint_address}" \
-  snapshot save ${BBR_ARTIFACT_FILE_PATH}
+  snapshot save "${BBR_ARTIFACT_FILE_PATH}"
