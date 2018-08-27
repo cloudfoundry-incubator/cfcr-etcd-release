@@ -18,8 +18,6 @@ BOSH_CA_CERT_PATH="$(mktemp)"
 echo "${BOSH_CA_CERT}" > "${BOSH_CA_CERT_PATH}"
 export BOSH_CA_CERT_PATH
 
-credhub login
-
 ETCD_CLIENT_CERT="$(mktemp)"
 ETCD_KEY_FILE="$(mktemp)"
 ETCD_CA="$(mktemp)"

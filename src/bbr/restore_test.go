@@ -3,6 +3,7 @@ package bbr_test
 import (
 	"context"
 	"io/ioutil"
+	"os"
 	"os/exec"
 	"path/filepath"
 	"time"
@@ -13,6 +14,12 @@ import (
 	. "github.com/onsi/gomega"
 	"github.com/onsi/gomega/gexec"
 )
+
+func MustHaveEnv(keyname string) string {
+	val := os.Getenv(keyname)
+	Expect(val).NotTo(BeEmpty(), "Need "+keyname+" for the test")
+	return val
+}
 
 var _ = Describe("Restore", func() {
 	var (
@@ -62,7 +69,7 @@ var _ = Describe("Restore", func() {
 		backupCmd.Dir = bbrDir
 		session, err := gexec.Start(backupCmd, GinkgoWriter, GinkgoWriter)
 		Expect(err).ToNot(HaveOccurred())
-		Eventually(session, "1m").Should(gexec.Exit(0))
+		Eventually(session, "2m").Should(gexec.Exit(0))
 
 		_, err = etcd.Put(context.TODO(), "key", "fake-value")
 		Expect(err).ToNot(HaveOccurred())
@@ -78,7 +85,7 @@ var _ = Describe("Restore", func() {
 		restoreCmd := exec.Command("bbr", append(bbrArgs, "restore", "--artifact-path", globbedFiles[0])...)
 		session, err = gexec.Start(restoreCmd, GinkgoWriter, GinkgoWriter)
 		Expect(err).ToNot(HaveOccurred())
-		Eventually(session, "1m").Should(gexec.Exit(0))
+		Eventually(session, "2m").Should(gexec.Exit(0))
 
 		val, err = etcd.Get(context.TODO(), "key")
 		Expect(err).NotTo(HaveOccurred())
