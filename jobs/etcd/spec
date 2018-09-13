@@ -40,7 +40,11 @@ consumes:
 properties:
   etcd.dns_suffix:
     description: If provided, used as a DNS suffix for all nodes in the etcd cluster
-  tls.etcd.ca:
+  etcd.metrics_protocol:
+    description: IF provided with etcd.metrics_port, metrics endpoints listen with the protocol. http or https.
+  etcd.metrics_port:
+    description: IF provided with etcd.metrics_protocol, metrics endpoints listen on the port. 2379 and 2380 can not be used.
+  tls.etcd.ca: 
     description: CA for etcd client and server authentication
   tls.etcd.certificate:
     description: Certificate for etcd client and server authentication
