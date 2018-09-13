@@ -22,12 +22,6 @@ resources:
     branch: master
     private_key: ((git-ssh-key.private_key))
 
-- name: git-kubo-etcd-release
-  type: git
-  source:
-    uri: https://github.com/pivotal-cf-experimental/kubo-etcd
-    branch: master
-
 - name: stemcell
   type: bosh-io-stemcell
   source:
@@ -142,8 +136,6 @@ groups:
   - deploy-etcd-single-node
   - run-acceptance-etcd-single-node
   - delete-etcd-single-node
-  - migrate-from-kubo-etcd
-  - delete-etcd-migrate
   - AZ-failure-test
   - delete-etcd-multiaz
   - scale-from-1-to-3-nodes
@@ -169,8 +161,6 @@ groups:
   - deploy-etcd-single-node
   - run-acceptance-etcd-single-node
   - delete-etcd-single-node
-  - migrate-from-kubo-etcd
-  - delete-etcd-migrate
   - AZ-failure-test
   - delete-etcd-multiaz
   - scale-from-1-to-3-nodes
@@ -327,62 +317,6 @@ jobs:
       delete:
         enabled: true
 
-- name: migrate-from-kubo-etcd
-  serial: true
-  serial_groups: [etcd-migrate]
-  plan:
-  - aggregate:
-    - get: git-cfcr-etcd-release
-      trigger: true
-    - get: git-kubo-etcd-release
-      trigger: true
-    - get: stemcell
-  - task: create-kubo-etcd-release
-    config:
-      inputs:
-      - name: git-kubo-etcd-release
-      outputs:
-      - name: kubo-etcd-release-tarball
-      platform: linux
-      image_resource:
-        type: docker-image
-        source: {repository: pcfkubo/kubo-ci}
-      run:
-        path: bash
-        args:
-        - -exuc
-        - bosh create-release --dir=git-kubo-etcd-release --tarball=kubo-etcd-release-tarball/kubo-etcd-release.tgz --timestamp-version
-  - put: etcd-migrate-deployment
-    params:
-      manifest: git-kubo-etcd-release/manifests/1-node-with-ssl-bosh-dns-like-cfcr.yml
-      stemcells:
-      - stemcell/stemcell.tgz
-      releases:
-      - kubo-etcd-release-tarball/kubo-etcd-release.tgz
-      ops_files:
-      - git-kubo-etcd-release/manifests/operations/deployment-name.yml
-      cleanup: true
-      vars:
-        deployment-name: etcd-migrate
-  - task: set-and-check-value
-    config:
-      platform: linux
-      image_resource:
-        type: docker-image
-        source: {repository: pcfkubo/kubo-ci}
-      params:
-        BOSH_ENVIRONMENT: ((cfcr-etcd-bosh.target))
-        BOSH_CLIENT: ((cfcr-etcd-bosh.client))
-        BOSH_CLIENT_SECRET: ((cfcr-etcd-bosh.client_secret))
-        BOSH_CA_CERT: ((cfcr-etcd-bosh.ca_cert))
-        BOSH_DEPLOYMENT: etcd-migrate
-        JUMPBOX_URL: ((cfcr-etcd-bosh.jumpbox_url))
-        JUMPBOX_SSH_KEY: ((cfcr-etcd-bosh.jumpbox_ssh_key))
-      inputs:
-      - name: git-cfcr-etcd-release
-      run:
-        path: git-cfcr-etcd-release/ci/scripts/set-and-check-value.sh
-
   - task: create-cfcr-etcd-release
     config:
       inputs:
@@ -430,18 +364,6 @@ jobs:
       - name: git-cfcr-etcd-release
       run:
         path: git-cfcr-etcd-release/ci/scripts/check-value-migrate.sh
-
-- name: delete-etcd-migrate
-  serial: true
-  serial_groups: [etcd-migrate]
-  plan:
-  - get: git-cfcr-etcd-release
-    passed: [ migrate-from-kubo-etcd ]
-    trigger: true
-  - put: etcd-migrate-deployment
-    params:
-      delete:
-        enabled: true
 
 - name: AZ-failure-test
   serial: true
@@ -748,7 +670,6 @@ jobs:
       - delete-etcd
       - delete-etcd-multiaz
       - delete-etcd-single-node
-      - delete-etcd-migrate
       - bbr-delete-etcd-single-node
       - delete-etcd-scale
     - get: cfcr-etcd-version
