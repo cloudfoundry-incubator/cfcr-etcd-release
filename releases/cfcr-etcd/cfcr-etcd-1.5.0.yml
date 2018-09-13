@@ -1,0 +1,42 @@
+name: cfcr-etcd
+version: 1.5.0
+commit_hash: 0b9a56b
+uncommitted_changes: false
+jobs:
+- name: acceptance-tests
+  version: 6b68f2ece4c8ac89a7ef3ac34bb9152bcb09b5f54fdbba9a7aa84468aeb95faf
+  fingerprint: 6b68f2ece4c8ac89a7ef3ac34bb9152bcb09b5f54fdbba9a7aa84468aeb95faf
+  sha1: sha256:9a43b18916671d7ab2089020583da43854e203dfe30065c6b539b9aa8ccc51b6
+- name: bbr-etcd
+  version: a977e178f9c810f2ee82254cf47d55393eaebcc6fc55aaa7b69a4779af4e102b
+  fingerprint: a977e178f9c810f2ee82254cf47d55393eaebcc6fc55aaa7b69a4779af4e102b
+  sha1: sha256:f78c22da792bc1a0e71f7f8e102d46747b81b0c75a8adfeb669453053bafd2cb
+- name: dummy-aliases
+  version: 02e9b165a2163e79a4be7d5e40930528ede8948c34943d61b7a4d8af56eedad8
+  fingerprint: 02e9b165a2163e79a4be7d5e40930528ede8948c34943d61b7a4d8af56eedad8
+  sha1: sha256:94eda902a3d192d14c67f94b1505ce484029450b948e19509552620e8cf0ba82
+- name: etcd
+  version: e3360df0b22181c81f3659fa02cff8fcf5d7b15906d1011941ac0804e1aa00bc
+  fingerprint: e3360df0b22181c81f3659fa02cff8fcf5d7b15906d1011941ac0804e1aa00bc
+  sha1: sha256:a6169afa3a7ede430772e0f46d0fd915739b57b5e966df6be61a79f7c4b5b0a5
+packages:
+- name: acceptance
+  version: a07f2dd089814be12b26d5c86ceffea8093bfeb7c08b1303a31f46b0e4882f62
+  fingerprint: a07f2dd089814be12b26d5c86ceffea8093bfeb7c08b1303a31f46b0e4882f62
+  sha1: sha256:9c22623a217a4bf936c42602cdb4e1c43776bb12bcaed9065ef83e6ae41c37f9
+  dependencies:
+  - golang-1.10-linux
+- name: etcd
+  version: 85dda55e8a705751cda974bbabde28bf77dacf8f9bb7c7335de35d14945e1e53
+  fingerprint: 85dda55e8a705751cda974bbabde28bf77dacf8f9bb7c7335de35d14945e1e53
+  sha1: sha256:9f0e2c991472b1872f84ef572985319acf26af631ac7651bc77a6fa09afd7178
+  dependencies: []
+- name: golang-1.10-linux
+  version: 84480dd6f6ab2d61546f28c05ed2705c9c642607
+  fingerprint: 84480dd6f6ab2d61546f28c05ed2705c9c642607
+  sha1: 491bd2416037957858a1e0450193f116285a6be7
+  dependencies: []
+license:
+  version: 8b3244f5084173690ae185af56279c848184813060a9472ee033472a5d17ee64
+  fingerprint: 8b3244f5084173690ae185af56279c848184813060a9472ee033472a5d17ee64
+  sha1: sha256:be1a860217c73629cc059cdce24c1e178bd7b4b7f7f5e1fb6c6610a18508186b
