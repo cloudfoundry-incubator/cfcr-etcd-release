@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+
+echo "---
+restore_name: cfcr-etcd-snapshot
+<% if spec.bootstrap %>
+backup_name: cfcr-etcd-snapshot
+<% end %>
+"

@@ -1,0 +1,23 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+echo "Starting etcd"
+
+/var/vcap/bosh/bin/monit start etcd
+
+output="$(/var/vcap/bosh/bin/monit summary | grep etcd)"
+timeout=0
+
+while [[ $output != *"running"* ]]
+do
+  if [ $timeout == 60 ]; then echo "Timed out starting etcd"; exit 1; fi
+  timeout=$((timeout + 1))
+
+  echo "waiting"
+  sleep 1
+
+  output="$(/var/vcap/bosh/bin/monit summary | grep etcd)"
+done
+
+echo "Etcd restored"
