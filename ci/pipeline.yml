@@ -37,6 +37,7 @@ resources:
     ca_cert: ((cfcr-etcd-bosh.ca_cert))
     jumpbox_url: ((cfcr-etcd-bosh.jumpbox_url))
     jumpbox_ssh_key: ((cfcr-etcd-bosh.jumpbox_ssh_key))
+    skip_check: true
 
 - name: etcd-deployment
   type: bosh-deployment
@@ -48,6 +49,7 @@ resources:
     ca_cert: ((cfcr-etcd-bosh.ca_cert))
     jumpbox_url: ((cfcr-etcd-bosh.jumpbox_url))
     jumpbox_ssh_key: ((cfcr-etcd-bosh.jumpbox_ssh_key))
+    skip_check: true
 
 - name: etcd-migrate-deployment
   type: bosh-deployment
@@ -59,6 +61,7 @@ resources:
     ca_cert: ((cfcr-etcd-bosh.ca_cert))
     jumpbox_url: ((cfcr-etcd-bosh.jumpbox_url))
     jumpbox_ssh_key: ((cfcr-etcd-bosh.jumpbox_ssh_key))
+    skip_check: true
 
 - name: etcd-scale-deployment
   type: bosh-deployment
@@ -70,6 +73,7 @@ resources:
     ca_cert: ((cfcr-etcd-bosh.ca_cert))
     jumpbox_url: ((cfcr-etcd-bosh.jumpbox_url))
     jumpbox_ssh_key: ((cfcr-etcd-bosh.jumpbox_ssh_key))
+    skip_check: true
 
 - name: etcd-multiaz-deployment
   type: bosh-deployment
@@ -81,6 +85,7 @@ resources:
     ca_cert: ((cfcr-etcd-bosh.ca_cert))
     jumpbox_url: ((cfcr-etcd-bosh.jumpbox_url))
     jumpbox_ssh_key: ((cfcr-etcd-bosh.jumpbox_ssh_key))
+    skip_check: true
 
 - name: bbl-state
   type: bbl-state-resource
