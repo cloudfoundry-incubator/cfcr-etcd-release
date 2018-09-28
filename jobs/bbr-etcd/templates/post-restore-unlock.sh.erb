@@ -6,18 +6,18 @@ echo "Starting etcd"
 
 /var/vcap/bosh/bin/monit start etcd
 
-output="$(/var/vcap/bosh/bin/monit summary | grep etcd)"
-timeout=0
+ensure_etcd_running() {
+  until "$(/var/vcap/bosh/bin/monit summary | grep etcd)" == *"running"*; do
+    sleep 1
+  done
+}
 
-while [[ $output != *"running"* ]]
-do
-  if [ $timeout == 60 ]; then echo "Timed out starting etcd"; exit 1; fi
-  timeout=$((timeout + 1))
+TIMEOUT=60
 
-  echo "waiting"
-  sleep 1
-
-  output="$(/var/vcap/bosh/bin/monit summary | grep etcd)"
-done
-
-echo "Etcd restored"
+if timeout "$TIMEOUT" ensure_etcd_running
+then
+  echo "Etcd has been started and is running"
+else
+  echo "Timed out starting etcd after $TIMEOUT seconds"
+  exit 1
+fi
