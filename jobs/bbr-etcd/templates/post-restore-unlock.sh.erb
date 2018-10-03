@@ -1,20 +1,21 @@
 #!/usr/bin/env bash
 
-set -euo pipefail
+set -ex
 
 echo "Starting etcd"
 
 /var/vcap/bosh/bin/monit start etcd
 
-ensure_etcd_running() {
-  until "$(/var/vcap/bosh/bin/monit summary | grep etcd)" == *"running"*; do
-    sleep 1
-  done
-}
-
 TIMEOUT=60
 
-if timeout "$TIMEOUT" ensure_etcd_running
+if timeout "$TIMEOUT" /bin/bash <<EOF
+  #!/bin/bash
+
+  until /var/vcap/bosh/bin/monit summary | grep etcd | grep running ; do
+    echo "waiting for etcd to start..."
+    sleep 5
+  done
+EOF
 then
   echo "Etcd has been started and is running"
 else
