@@ -1,0 +1,6 @@
+- type: replace
+  path: /instance_groups/name=etcd/jobs/name=etcd/properties/etcd?/metrics_protocol?
+  value: ((metrics_protocol))
+- type: replace
+  path: /instance_groups/name=etcd/jobs/name=etcd/properties/etcd?/metrics_port?
+  value: ((metrics_port))
