@@ -14,7 +14,7 @@ params:
 
 inputs:
   - name: git-cfcr-etcd-release
-  - name: cfcr-etcd-version
+  - name: cfcr-etcd-release-version
 outputs:
   - name: cfcr-etcd-release
   - name: git-cfcr-etcd-release-output
