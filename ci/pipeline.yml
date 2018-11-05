@@ -51,18 +51,6 @@ resources:
     jumpbox_ssh_key: ((cfcr-etcd-bosh.jumpbox_ssh_key))
     skip_check: true
 
-- name: etcd-migrate-deployment
-  type: bosh-deployment
-  source:
-    deployment: etcd-migrate
-    target: ((cfcr-etcd-bosh.target))
-    client: ((cfcr-etcd-bosh.client))
-    client_secret: ((cfcr-etcd-bosh.client_secret))
-    ca_cert: ((cfcr-etcd-bosh.ca_cert))
-    jumpbox_url: ((cfcr-etcd-bosh.jumpbox_url))
-    jumpbox_ssh_key: ((cfcr-etcd-bosh.jumpbox_ssh_key))
-    skip_check: true
-
 - name: etcd-scale-deployment
   type: bosh-deployment
   source:
@@ -106,6 +94,7 @@ resources:
   type: bosh-deployment
   source:
     deployment: bbr-etcd-single-node
+    skip_check: true
 
 - name: bbr-github-release
   type: github-release
@@ -114,12 +103,12 @@ resources:
     repository: bosh-backup-and-restore
     access_token: ((github-kubo-gitbot-access-token))
 
-- name: cfcr-etcd-version
+- name: cfcr-etcd-release-version
   type: semver
   source:
-    initial_version: 1.4.0
+    initial_version: 1.8.0
     driver: gcs
-    key: versions/cfcr-etcd-version
+    key: versions/cfcr-etcd-release-version
     json_key: ((gcs-json-key))
     bucket: kubo-pipeline-store
 
@@ -321,54 +310,6 @@ jobs:
     params:
       delete:
         enabled: true
-
-  - task: create-cfcr-etcd-release
-    config:
-      inputs:
-      - name: git-cfcr-etcd-release
-      outputs:
-      - name: cfcr-etcd-release-tarball
-      platform: linux
-      image_resource:
-        type: docker-image
-        source: {repository: pcfkubo/kubo-ci}
-      run:
-        path: bash
-        args:
-        - -exuc
-        - bosh create-release --dir=git-cfcr-etcd-release --tarball=cfcr-etcd-release-tarball/cfcr-etcd-release.tgz --timestamp-version
-  - put: etcd-migrate-deployment
-    params:
-      manifest: git-cfcr-etcd-release/manifests/etcd.yml
-      stemcells:
-      - stemcell/stemcell.tgz
-      releases:
-      - cfcr-etcd-release-tarball/cfcr-etcd-release.tgz
-      ops_files:
-      - git-cfcr-etcd-release/manifests/ops-files/rename-network-and-deployment.yml
-      - git-cfcr-etcd-release/manifests/ops-files/single-node.yml
-      cleanup: true
-      vars:
-        deployment-name: etcd-migrate
-        network-name: default
-  - task: check-value
-    config:
-      platform: linux
-      image_resource:
-        type: docker-image
-        source: {repository: pcfkubo/kubo-ci}
-      params:
-        BOSH_ENVIRONMENT: ((cfcr-etcd-bosh.target))
-        BOSH_CLIENT: ((cfcr-etcd-bosh.client))
-        BOSH_CLIENT_SECRET: ((cfcr-etcd-bosh.client_secret))
-        BOSH_CA_CERT: ((cfcr-etcd-bosh.ca_cert))
-        BOSH_DEPLOYMENT: etcd-migrate
-        JUMPBOX_URL: ((cfcr-etcd-bosh.jumpbox_url))
-        JUMPBOX_SSH_KEY: ((cfcr-etcd-bosh.jumpbox_ssh_key))
-      inputs:
-      - name: git-cfcr-etcd-release
-      run:
-        path: git-cfcr-etcd-release/ci/scripts/check-value-migrate.sh
 
 - name: AZ-failure-test
   serial: true
@@ -677,7 +618,7 @@ jobs:
       - delete-etcd-single-node
       - bbr-delete-etcd-single-node
       - delete-etcd-scale
-    - get: cfcr-etcd-version
+    - get: cfcr-etcd-release-version
   - task: create-final-release
     file: git-cfcr-etcd-release/ci/tasks/create-final-release.yml
     params:
@@ -690,10 +631,10 @@ jobs:
   - put: gh-release-cfcr-etcd-release
     params:
       name: cfcr-etcd-release/name
-      tag: cfcr-etcd-version/version
+      tag: cfcr-etcd-release-version/version
       tag_prefix: v
       body: cfcr-etcd-release/body
       globs: ["cfcr-etcd-release/*.tgz"]
-  - put: cfcr-etcd-version
+  - put: cfcr-etcd-release-version
     params:
       bump: minor
