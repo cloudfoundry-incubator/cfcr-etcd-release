@@ -1,12 +1,15 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 set -euo pipefail
 
 source /var/vcap/jobs/etcd/bin/utils.sh
 
 BBR_ARTIFACT_FILE_PATH="${BBR_ARTIFACT_DIRECTORY}/snapshotdb"
-
 export ETCDCTL_API=3
+
+
+<% if spec.bootstrap %>
+echo "Taking etcd snapshot"
 
 /var/vcap/packages/etcd/bin/etcdctl \
   --cacert /var/vcap/jobs/etcd/config/etcdctl-ca.crt \
@@ -14,3 +17,4 @@ export ETCDCTL_API=3
   --key /var/vcap/jobs/etcd/config/etcdctl.key \
   --endpoints "${etcd_endpoint_address}" \
   snapshot save "${BBR_ARTIFACT_FILE_PATH}"
+<% end %>

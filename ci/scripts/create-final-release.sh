@@ -4,7 +4,7 @@ set -exu -o pipefail
 
 export BOSH_LOG_LEVEL=debug
 export BOSH_LOG_PATH="$PWD/bosh.log"
-version=$(cat cfcr-etcd-version/version)
+version=$(cat cfcr-etcd-release-version/version)
 git config --global user.name "cfcr"
 git config --global user.email "cfcr@pivotal.io"
 

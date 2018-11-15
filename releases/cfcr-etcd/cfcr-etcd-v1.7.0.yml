@@ -1,0 +1,42 @@
+name: cfcr-etcd
+version: v1.7.0
+commit_hash: 60ce483
+uncommitted_changes: true
+jobs:
+- name: acceptance-tests
+  version: 4714f2813769c7fbca154a9656d3745d4af3e892
+  fingerprint: 4714f2813769c7fbca154a9656d3745d4af3e892
+  sha1: 7e0f7aeeceeb53bc2c779eb02674372018c4c205
+- name: bbr-etcd
+  version: 071e28a9f402dc52ca3cab74e00ffac6f08d7e66
+  fingerprint: 071e28a9f402dc52ca3cab74e00ffac6f08d7e66
+  sha1: 0d62327f810545d89b2c61cb404f4feae7a4ae76
+- name: dummy-aliases
+  version: da10507d6f9b30a6ee7ce5e580be053ddd594cc5
+  fingerprint: da10507d6f9b30a6ee7ce5e580be053ddd594cc5
+  sha1: a0706481b8e7954cc904467379f633e7ce89a3c8
+- name: etcd
+  version: 2ae440cb8304f69f1797c48499ff353ab8ac16c7
+  fingerprint: 2ae440cb8304f69f1797c48499ff353ab8ac16c7
+  sha1: 9ed5cc6786abd0b595175dc2a583c46e14dbadd3
+packages:
+- name: acceptance
+  version: 42a81acd8b2976fd68c23d7cd20411e5ecea5bc9
+  fingerprint: 42a81acd8b2976fd68c23d7cd20411e5ecea5bc9
+  sha1: fcd1cb736a70bd6b1c1b03279315e7dfafddcf69
+  dependencies:
+  - golang-1.11-linux
+- name: etcd
+  version: 4409d691802418feb610a01ba42137f1ca080928
+  fingerprint: 4409d691802418feb610a01ba42137f1ca080928
+  sha1: ecc88fc304e1646bf3bf5df36a0cb87fa6c78530
+  dependencies: []
+- name: golang-1.11-linux
+  version: bb9ab510b4b82a163137540402017207b9fc7e06
+  fingerprint: bb9ab510b4b82a163137540402017207b9fc7e06
+  sha1: f76df378af8cfd97e8fd60cdbc5b00ee952d5caf
+  dependencies: []
+license:
+  version: 0598df3aa504eafdc95c94866f734b49a3570ee0
+  fingerprint: 0598df3aa504eafdc95c94866f734b49a3570ee0
+  sha1: 00133bedcd023d278b96698871c291919be1cf78
