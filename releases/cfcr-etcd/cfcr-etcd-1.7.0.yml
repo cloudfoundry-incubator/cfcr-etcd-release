@@ -1,5 +1,5 @@
 name: cfcr-etcd
-version: v1.7.0
+version: 1.7.0
 commit_hash: 60ce483
 uncommitted_changes: true
 jobs:
