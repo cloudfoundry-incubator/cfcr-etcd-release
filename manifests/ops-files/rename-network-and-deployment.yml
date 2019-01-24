@@ -1,34 +1,34 @@
 ---
 - type: replace
   path: /name
-  value: ((deployment-name))
+  value: ((deployment_name))
 
 - type: replace
   path: /instance_groups/name=etcd/networks
   value:
-  - name: ((network-name))
+  - name: ((network))
 
 - type: replace
   path: /instance_groups/name=acceptance/networks
   value:
-  - name: ((network-name))
+  - name: ((network))
 
 - type: replace
   path: /variables/name=tls_etcd/options/common_name
-  value: etcd.((network-name)).((deployment-name)).bosh
+  value: etcd.((network)).((deployment_name)).bosh
 
 - type: replace
   path: /variables/name=tls_etcd/options/alternative_names
   value:
-  - "etcd.((network-name)).((deployment-name)).bosh"
-  - "*.etcd.((network-name)).((deployment-name)).bosh"
+  - "etcd.((network)).((deployment_name)).bosh"
+  - "*.etcd.((network)).((deployment_name)).bosh"
 
 - type: replace
   path: /variables/name=tls_etcd_peer/options/common_name
-  value: etcd.((network-name)).((deployment-name)).bosh
+  value: etcd.((network)).((deployment_name)).bosh
 
 - type: replace
   path: /variables/name=tls_etcd_peer/options/alternative_names
   value:
-  - "etcd.((network-name)).((deployment-name)).bosh"
-  - "*.etcd.((network-name)).((deployment-name)).bosh"
+  - "etcd.((network)).((deployment_name)).bosh"
+  - "*.etcd.((network)).((deployment_name)).bosh"
