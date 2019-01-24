@@ -13,10 +13,6 @@ releases:
   sha1: 5a03b988c725c6b5a1aed247c8c23c2bff9d421b
   url: https://bosh.io/d/github.com/cloudfoundry-incubator/bpm-release?v=0.4.0
   version: 0.4.0
-- name: bosh-dns
-  sha1: 66e74bb601b691ea4836f859c556de8a5c6c1264
-  url: https://bosh.io/d/github.com/cloudfoundry/bosh-dns-release?v=1.5.0
-  version: 1.5.0
 
 addons:
 - name: bosh-dns
