@@ -14,30 +14,6 @@ releases:
   url: https://bosh.io/d/github.com/cloudfoundry-incubator/bpm-release?v=0.4.0
   version: 0.4.0
 
-addons:
-- name: bosh-dns
-  include:
-    stemcells:
-    - os: ubuntu-trusty
-    - os: ubuntu-xenial
-  jobs:
-  - name: bosh-dns
-    release: bosh-dns
-    properties:
-      api:
-        server:
-          tls: ((/dns_api_server_tls))
-        client:
-          tls: ((/dns_api_client_tls))
-      cache:
-        enabled: true
-      health:
-        enabled: true
-        server:
-          tls: ((/dns_healthcheck_server_tls))
-        client:
-          tls: ((/dns_healthcheck_client_tls))
-
 instance_groups:
 - name: etcd
   azs: [z1,z2,z3]
@@ -97,56 +73,6 @@ update:
   update_watch_time: 1000-60000
 
 variables:
-- name: /dns_healthcheck_tls_ca
-  opsname: global_dns_healthcheck_tls_ca
-  type: certificate
-  options:
-    is_ca: true
-    common_name: dns-healthcheck-tls-ca
-
-- name: /dns_healthcheck_server_tls
-  opsname: global_dns_healthcheck_server_tls
-  type: certificate
-  options:
-    ca: /dns_healthcheck_tls_ca
-    common_name: health.bosh-dns
-    extended_key_usage:
-    - server_auth
-
-- name: /dns_healthcheck_client_tls
-  opsname: global_dns_healthcheck_client_tls
-  type: certificate
-  options:
-    ca: /dns_healthcheck_tls_ca
-    common_name: health.bosh-dns
-    extended_key_usage:
-    - client_auth
-
-- name: /dns_api_tls_ca
-  opsname: global_dns_api_tls_ca
-  type: certificate
-  options:
-    is_ca: true
-    common_name: dns-api-tls-ca
-
-- name: /dns_api_server_tls
-  opsname: global_dns_api_server_tls
-  type: certificate
-  options:
-    ca: /dns_api_tls_ca
-    common_name: api.bosh-dns
-    extended_key_usage:
-    - server_auth
-
-- name: /dns_api_client_tls
-  opsname: global_dns_api_client_tls
-  type: certificate
-  options:
-    ca: /dns_api_tls_ca
-    common_name: api.bosh-dns
-    extended_key_usage:
-    - client_auth
-
 - name: etcd_ca
   type: certificate
   options:
