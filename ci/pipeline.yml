@@ -15,6 +15,14 @@ resource_types:
     repository: frodenas/gcs-resource
 
 resources:
+- name: bosh-create-time
+  type: time
+  source:
+    start: 12:00 AM
+    stop: 1:00 AM
+    location: Europe/Dublin
+    days: [Sunday]
+
 - name: git-cfcr-etcd-release
   type: git
   source:
@@ -578,6 +586,8 @@ jobs:
 
 - name: deploy-bosh
   plan:
+  - get: bosh-create-time
+    trigger: true
   - get: gcs-bbl-state
   - get: git-cfcr-etcd-release
   - task: unpack-bbl-state
