@@ -1,3 +1,8 @@
+<%=
+ if !p('bbr.backup_one_restore_all')
+  raise 'bbr.backup_one_restore_all property must be set to true in the manifest!'
+ end
+%>
 #!/usr/bin/env bash
 
 set -euo pipefail
