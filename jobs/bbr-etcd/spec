@@ -10,4 +10,7 @@ templates:
 
 packages: []
 
-properties: {}
+properties:
+  bbr.backup_one_restore_all:
+    default: false
+    description: This property must be set to true in the manifest in order for bbr to work correctly with this job. BBR reads this property from the BOSH manifest to generate the correct artifact files.
