@@ -9,7 +9,7 @@ templates:
 
 packages:
 - acceptance
-- golang-1.11-linux
+- golang-1.12-linux
 
 consumes:
 - name: etcd
