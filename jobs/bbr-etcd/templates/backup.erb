@@ -1,7 +1,11 @@
 #!/usr/bin/env bash
 
 set -euo pipefail
-
+<%=
+ if !p('bbr.backup_one_restore_all')
+  raise 'bbr.backup_one_restore_all property must be set to true in the manifest!'
+ end
+%>
 source /var/vcap/jobs/etcd/bin/utils.sh
 
 BBR_ARTIFACT_FILE_PATH="${BBR_ARTIFACT_DIRECTORY}/snapshotdb"
