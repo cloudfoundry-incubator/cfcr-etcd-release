@@ -32,6 +32,8 @@ provides:
   - tls.etcdctl.ca
   - tls.etcdctl.certificate
   - tls.etcdctl.private_key
+  - tls.etcdctl-flanneld.certificate
+  - tls.etcdctl-flanneld.private_key
 
 consumes:
 - name: etcd
@@ -56,6 +58,10 @@ properties:
     description: Certificate for etcdctl client authentication
   tls.etcdctl.private_key:
     description: Private key for etcdctl client authentication
+  tls.etcdctl-flannel.certificate:
+    description: Certificate for etcdctl used by flanneld job client authentication
+  tls.etcdctl-flannel.private_key:
+    description: Private key for etcdctl used by flanneld job client authentication
   tls.peer.ca:
     description: CA for peer authentication
   tls.peer.certificate:
@@ -67,13 +73,13 @@ properties:
     example: |
       - name: root
         password: rootpassword
-      - name: flannel
+      - name: flanneld
         path: /coreos.com/network
-        prefix: true
+        is_prefix: true
         permission: readwrite
         password: pass
       - name: foo
         path: bar
-        prefix: false
+        is_prefix: false
         permission: read
         password: pass
