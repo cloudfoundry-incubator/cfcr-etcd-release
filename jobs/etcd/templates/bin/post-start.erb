@@ -3,7 +3,8 @@
 set -euo pipefail
 source /var/vcap/jobs/etcd/bin/utils.sh
 
-alias etcdctl="/var/vcap/jobs/etcd/bin/etcdctl"
+etcdctl="/var/vcap/jobs/etcd/bin/etcdctl"
+user_not_found_error_message=".*user name not found.*"
 export ETCDCTL_API=3
 
 # We support transitioning to this etcd release from an existing 1 node
@@ -11,38 +12,37 @@ export ETCDCTL_API=3
 # address. This covers upgrading from non-alias'd clusters to alias'd clusters.
 
 update_peer_url_to_correct_dns_address() {
-  if ! etcdctl member list | grep "${etcd_peer_address}"; then
-    member_id="$(etcdctl member list | grep "<%= spec.id %>" | cut -d',' -f1)"
+  if ! $etcdctl member list | grep "${etcd_peer_address}"; then
+    member_id="$($etcdctl member list | grep "<%= spec.id %>" | cut -d',' -f1)"
 
     echo "Updating Member (${member_id}) peer url"
 
-    etcdctl member update "${member_id}" --peer-urls "${etcd_peer_address}"
+    $etcdctl member update "${member_id}" --peer-urls "${etcd_peer_address}"
   fi
 }
 
 setup_users_auth() {
   <% if_p('users') do |users| %>
-    <% users.each do |user| %>
-      username="<%= user.name %>"
-      password="<%= user.password %>"
+  <% users.each do |user| %>
+      username="<%= user["name"] %>"
+      password="<%= user["password"] %>"
       ## Root user is first parsed
-      if [ "$username" == root ]; then
-        export ROOT_PASSWORD=$password
-
-        if [[ "$($etcdctl --user root:$ROOT_PASSWORD user get root)" =~ ".*user name not found.*" ]]; then
-          $etcdctl --user root:$ROOT_PASSWORD add root:$ROOT_PASSWORD --interactive=false
-        fi
-
-        $etcdctl --user root:$ROOT_PASSWORD auth enable
-      else
-        is_prefix="<%= user.perfix %>"
-        permission="<%= user.permission %>"
-        path="<%= user.path %>"
-        role="${username}-role"
-
-        setup_user_auth "$username" "$password" "$is_prefix" "$permission" "$path" "$role"
+    <% if user["name"] == "root" %>
+      echo "Set up user root"
+      export ROOT_PASSWORD=$password
+      if [ -z "$($etcdctl --user root:$ROOT_PASSWORD user get root)" ]; then
+        $etcdctl --user root:$ROOT_PASSWORD user add root:$ROOT_PASSWORD --interactive=false
       fi
+      $etcdctl --user root:$ROOT_PASSWORD auth enable
+    <% else %>
+      echo "Set up user: $username"
+      is_prefix="<%= user["is_prefix"] %>"
+      permission="<%= user["permission"] %>"
+      path="<%= user["path"] %>"
+      role="${username}-role"
+      setup_user_auth "$username" "$password" "$is_prefix" "$permission" "$path" "$role"
     <% end %>
+  <% end %>
   <% end %>
 }
 
@@ -69,13 +69,13 @@ cleanup_old_user_and_role() {
   role=$2
 
   echo "Check if username exsit"
-  if ! [[ "$($etcdctl --user root:$ROOT_PASSWORD user get $username)" =~ ".*user name not found.*" ]]; then
+  if [ -n "$($etcdctl --user root:$ROOT_PASSWORD user get $username)" ]; then
     echo  "Delete old user"
     $etcdctl --user root:$ROOT_PASSWORD user delete $username
   fi
 
   echo "Check if role exsit"
-  if ! [[ "$($etcdctl --user root:$ROOT_PASSWORD role get $role)" =~ ".*role name not found.*" ]]; then
+  if [ -n "$($etcdctl --user root:$ROOT_PASSWORD role get $role)" ]; then
     echo  "Delete old role"
     $etcdctl --user root:$ROOT_PASSWORD role delete $role
   fi
