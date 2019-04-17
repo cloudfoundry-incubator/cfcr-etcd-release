@@ -74,12 +74,10 @@ properties:
       - name: root
         password: rootpassword
       - name: flanneld
-        path: /coreos.com/network
-        is_prefix: true
+        path: /coreos.com/network/*
         permission: readwrite
         password: pass
       - name: foo
         path: bar
-        is_prefix: false
         permission: read
         password: pass
