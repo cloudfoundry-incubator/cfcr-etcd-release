@@ -58,9 +58,9 @@ properties:
     description: Certificate for etcdctl client authentication
   tls.etcdctl.private_key:
     description: Private key for etcdctl client authentication
-  tls.etcdctl-flannel.certificate:
+  tls.etcdctl-flanneld.certificate:
     description: Certificate for etcdctl used by flanneld job client authentication
-  tls.etcdctl-flannel.private_key:
+  tls.etcdctl-flanneld.private_key:
     description: Private key for etcdctl used by flanneld job client authentication
   tls.peer.ca:
     description: CA for peer authentication
