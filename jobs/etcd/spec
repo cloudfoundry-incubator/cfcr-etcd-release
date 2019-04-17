@@ -44,7 +44,7 @@ properties:
     description: IF provided with etcd.metrics_port, metrics endpoints listen with the protocol. http or https.
   etcd.metrics_port:
     description: IF provided with etcd.metrics_protocol, metrics endpoints listen on the port. 2379 and 2380 can not be used.
-  tls.etcd.ca: 
+  tls.etcd.ca:
     description: CA for etcd client and server authentication
   tls.etcd.certificate:
     description: Certificate for etcd client and server authentication
@@ -62,3 +62,18 @@ properties:
     description: Certificate for peer authentication
   tls.peer.private_key:
     description: Private key for peer authentication
+  users:
+    description: List of user's name, permissions, path, and whether the path is a prefix. Etcd will use these info to set up rbac rules for these users
+    example: |
+      - name: root
+        password: rootpassword
+      - name: flannel
+        path: /coreos.com/network
+        prefix: true
+        permission: readwrite
+        password: pass
+      - name: foo
+        path: bar
+        prefix: false
+        permission: read
+        password: pass
