@@ -55,33 +55,18 @@ setup_user_auth() {
   path=$4
   role=$5
 
-  ## cleanup old user and roles
-  cleanup_old_user_and_role $username $role
-
   ## add user
-  echo "$password" | $etcdctl --username root:$ROOT_PASSWORD user add $username
-  $etcdctl --username root:$ROOT_PASSWORD role add $role
+  if [ -z "$($etcdctl --username root:$ROOT_PASSWORD user get $username)" ]; then
+    echo "$password" | $etcdctl --username root:$ROOT_PASSWORD user add $username
+  fi
+  ## add role
+  if [ -z "$($etcdctl --username root:$ROOT_PASSWORD role get $role)" ]; then
+    $etcdctl --username root:$ROOT_PASSWORD role add $role
+  fi
+
   $etcdctl --username root:$ROOT_PASSWORD role grant $role --"$permission" --path "$path"
   $etcdctl --username root:$ROOT_PASSWORD user grant $username --roles $role
 }
-
-cleanup_old_user_and_role() {
-  username=$1
-  role=$2
-
-  echo "Check if username exsit"
-  if [ -n "$($etcdctl --username root:$ROOT_PASSWORD user get $username)" ]; then
-    echo  "Delete old user"
-    $etcdctl --username root:$ROOT_PASSWORD user remove $username
-  fi
-
-  echo "Check if role exsit"
-  if [ -n "$($etcdctl --username root:$ROOT_PASSWORD role get $role)" ]; then
-    echo  "Delete old role"
-    $etcdctl --username root:$ROOT_PASSWORD role remove $role
-  fi
-}
-
 
 main() {
   timeout 120 /var/vcap/jobs/etcd/bin/ensure-member-healthy
