@@ -72,11 +72,14 @@ properties:
     description: List of user's name, permissions, path, and whether the path is a prefix. Etcd will use these info to set up rbac rules for these users
     example: |
       - name: root
-        password: rootpassword
+        password: ((etcd_user_root_password))
       - name: flanneld
-        path: /coreos.com/network/*
-        permission: readwrite
-        password: pass
+        permissions:
+          read:
+          - /coreos.com/network/*
+          write:
+          - /coreos.com/network/*
+        password: ((etcd_user_flanneld_password))
       - name: foo
         path: bar
         permission: read
