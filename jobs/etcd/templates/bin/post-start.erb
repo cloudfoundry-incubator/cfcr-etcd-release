@@ -72,6 +72,7 @@ setup_user_auth() {
     $etcdctl --username root:$ROOT_PASSWORD role add $role
   fi
 
+  ## grant read permission
   <%= if user["permissions"]["read"] do |read_paths| %>"
     <% read_paths.each do |read_path| %>
   path="<%= read_path %>"
@@ -81,7 +82,7 @@ setup_user_auth() {
   fi
     <% end %>
   <% end %>
-
+  ## grant write permission
   <%= if user["permissions"]["write"] do |write_paths| %>"
     <% write_paths.each do |write_path| %>
   path="<%= write_path %>"
@@ -92,6 +93,7 @@ setup_user_auth() {
     <% end %>
   <% end %>
 
+  ## bind role to user
   role_regex="Roles:.*$role"
   if ! [[ "$($etcdctl --username root:$ROOT_PASSWORD user get $username)" =~ $role_regex ]]; then
     $etcdctl --username root:$ROOT_PASSWORD user grant $username --roles $role
