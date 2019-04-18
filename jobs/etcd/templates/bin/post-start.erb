@@ -19,7 +19,15 @@ update_peer_url_to_correct_dns_address() {
     $etcdctl member update "${member_id}" --peer-urls "${etcd_peer_address}"
   fi
 }
-
+- name: root
+        password: ((etcd_user_root_password))
+      - name: flanneld
+        permissions:
+          read:
+          - /coreos.com/network/*
+          write:
+          - /coreos.com/network/*
+        password: ((etcd_user_flanneld_password))
 setup_users_auth() {
   export ETCDCTL_API=2
   <% if_p('users') do |users| %>
@@ -35,10 +43,8 @@ setup_users_auth() {
   fi
     <% else %>
   echo "Set up user: $username"
-  permission="<%= user["permission"] %>"
-  path="<%= user["path"] %>"
   role="${username}-role"
-  setup_user_auth "$username" "$password" "$permission" "$path" "$role"
+  setup_user_auth "$username" "$password" "$role"
     <% end %>
   <% end %>
   <% end %>
@@ -74,18 +80,25 @@ setup_user_auth() {
     $etcdctl --username root:$ROOT_PASSWORD role add $role
   fi
 
-  if [[ $permission =~ .*read.* ]]; then
-    read_regex=".*Read:\s+$path.*"
-    if ! [[ $($etcdctl --username root:$ROOT_PASSWORD role get $role) =~ $read_regex ]]; then
-      $etcdctl --username root:$ROOT_PASSWORD role grant $role --read --path "$path" 2>&1
-    fi
+  <%= if user["permissions"]["read"] do |read_paths| %>"
+    <% read_paths.each do |read_path| %>
+  path="<%= read_path %>"
+  read_regex=".*Read:\s+$path.*"
+  if ! [[ $($etcdctl --username root:$ROOT_PASSWORD role get $role) =~ $read_regex ]]; then
+    $etcdctl --username root:$ROOT_PASSWORD role grant $role --read --path "$path" 2>&1
   fi
-  if [[ $permission =~ .*write.* ]]; then
-    write_regex=".*Write:\s+$path.*"
-    if ! [[ $($etcdctl --username root:$ROOT_PASSWORD role get $role) =~ $write_regex ]]; then
-      $etcdctl --username root:$ROOT_PASSWORD role grant $role --write --path "$path" 2>&1
-    fi
+    <% end %>
+  <% end %>
+
+  <%= if user["permissions"]["write"] do |write_paths| %>"
+    <% write_paths.each do |write_path| %>
+  path="<%= write_path %>"
+  write_regex=".*Write:\s+$path.*"
+  if ! [[ $($etcdctl --username root:$ROOT_PASSWORD role get $role) =~ $write_regex ]]; then
+    $etcdctl --username root:$ROOT_PASSWORD role grant $role --write --path "$path" 2>&1
   fi
+    <% end %>
+  <% end %>
 
   role_regex="Roles:.*$role"
   if ! [[ "$($etcdctl --username root:$ROOT_PASSWORD user get $username)" =~ $role_regex ]]; then
