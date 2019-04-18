@@ -24,28 +24,38 @@ setup_users_auth() {
   export ETCDCTL_API=2
   <% if_p('users') do |users| %>
   <% users.each do |user| %>
-      username="<%= user["name"] %>"
-      password="<%= user["password"] %>"
-      ## Root user is first parsed
+  username="<%= user["name"] %>"
+  password="<%= user["password"] %>"
+  ## Root user is first parsed
     <% if user["name"] == "root" %>
-      echo "Set up user root"
-      export ROOT_PASSWORD="$password"
-      if [ -z "$($etcdctl --username root:$ROOT_PASSWORD user get root)" ]; then
-        echo "$password" | $etcdctl --username root:$ROOT_PASSWORD user add root
-      fi
-      ## in case it's already enabled
-      set +e
-      $etcdctl --username root:$ROOT_PASSWORD auth enable
-      set -e
+  echo "Set up user root"
+  export ROOT_PASSWORD="$password"
+  if [ -z "$($etcdctl --username root:$ROOT_PASSWORD user get root)" ]; then
+    echo "$password" | $etcdctl --username root:$ROOT_PASSWORD user add root
+  fi
     <% else %>
-      echo "Set up user: $username"
-      permission="<%= user["permission"] %>"
-      path="<%= user["path"] %>"
-      role="${username}-role"
-      setup_user_auth "$username" "$password" "$permission" "$path" "$role"
+  echo "Set up user: $username"
+  permission="<%= user["permission"] %>"
+  path="<%= user["path"] %>"
+  role="${username}-role"
+  setup_user_auth "$username" "$password" "$permission" "$path" "$role"
     <% end %>
   <% end %>
   <% end %>
+
+  ## in case it's already enabled
+  ## enable in the end in case before role is granted user don't have acceess
+  set +e
+  result=$($etcdctl --username root:$ROOT_PASSWORD auth enable 2>&1)
+  status=$?
+  set -e
+  if [ "$status" -ne 0 ]; then
+    enable_auth_duplicate_regex="auth: already enabled"
+    if ! [[ $result =~ $enable_auth_duplicate_regex ]]; then
+      echo "Error enable auth: $enable_auth_duplicate_regex"
+      exit 1
+    fi
+  fi
 }
 
 setup_user_auth() {
@@ -58,14 +68,32 @@ setup_user_auth() {
   ## add user
   if [ -z "$($etcdctl --username root:$ROOT_PASSWORD user get $username)" ]; then
     echo "$password" | $etcdctl --username root:$ROOT_PASSWORD user add $username
-  fi
+  if
   ## add role
   if [ -z "$($etcdctl --username root:$ROOT_PASSWORD role get $role)" ]; then
     $etcdctl --username root:$ROOT_PASSWORD role add $role
   fi
 
-  $etcdctl --username root:$ROOT_PASSWORD role grant $role --"$permission" --path "$path"
-  $etcdctl --username root:$ROOT_PASSWORD user grant $username --roles $role
+  if [[ $permission =~ .*read.* ]]; then
+    read_regex=".*Read:\s+$path.*"
+    if ! [[ $($etcdctl --username root:$ROOT_PASSWORD role get $role) =~ $read_regex ]]; then
+      $etcdctl --username root:$ROOT_PASSWORD role grant $role --read --path "$path" 2>&1
+    fi
+  fi
+  if [[ $permission =~ .*write.* ]]; then
+    write_regex=".*Write:\s+$path.*"
+    if ! [[ $($etcdctl --username root:$ROOT_PASSWORD role get $role) =~ $write_regex ]]; then
+      $etcdctl --username root:$ROOT_PASSWORD role grant $role --write --path "$path" 2>&1
+    fi
+  fi
+
+  role_regex="Roles:.*$role"
+  if ! [[ "$($etcdctl --username root:$ROOT_PASSWORD user get $username)" =~ $role_regex ]]; then
+    $etcdctl --username root:$ROOT_PASSWORD user grant $username --roles $role
+  fi
+
+  $etcdctl --username root:$ROOT_PASSWORD user get $username
+  $etcdctl --username root:$ROOT_PASSWORD user role $role
 }
 
 main() {
