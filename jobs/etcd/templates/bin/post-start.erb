@@ -34,64 +34,40 @@ setup_users_auth() {
     echo "$password" | $etcdctl --username root:$ROOT_PASSWORD user add root
   fi
     <% else %>
+  ## if it's ordinary user
   echo "Set up user: $username"
   role="${username}-role"
-  setup_user_auth "$username" "$password" "$role"
-    <% end %>
-  <% end %>
-  <% end %>
-
-  ## in case it's already enabled
-  ## enable in the end in case before role is granted user don't have acceess
-  set +e
-  result=$($etcdctl --username root:$ROOT_PASSWORD auth enable 2>&1)
-  status=$?
-  set -e
-  if [ "$status" -ne 0 ]; then
-    enable_auth_duplicate_regex="auth: already enabled"
-    if ! [[ $result =~ $enable_auth_duplicate_regex ]]; then
-      echo "Error enable auth: $result"
-      exit 1
-    fi
-  fi
-}
-
-setup_user_auth() {
-  username=$1
-  password=$2
-  permission=$3
-  path=$4
-  role=$5
 
   ## add user
   if [ -z "$($etcdctl --username root:$ROOT_PASSWORD user get $username)" ]; then
     echo "$password" | $etcdctl --username root:$ROOT_PASSWORD user add $username
-  if
+  fi
   ## add role
   if [ -z "$($etcdctl --username root:$ROOT_PASSWORD role get $role)" ]; then
     $etcdctl --username root:$ROOT_PASSWORD role add $role
   fi
 
   ## grant read permission
-  <%= if user["permissions"]["read"] do |read_paths| %>"
-    <% read_paths.each do |read_path| %>
+      <% if user["permissions"]["read"] != nil %>
+        <% user["permissions"]["read"].each do |read_path| %>
   path="<%= read_path %>"
   read_regex=".*KV Read:.*$path.*KV Write:.*"
   if ! [[ $($etcdctl --username root:$ROOT_PASSWORD role get $role) =~ $read_regex ]]; then
     $etcdctl --username root:$ROOT_PASSWORD role grant $role --read --path "$path"
   fi
-    <% end %>
-  <% end %>
+        <% end %>
+      <% end %>
+
   ## grant write permission
-  <%= if user["permissions"]["write"] do |write_paths| %>"
-    <% write_paths.each do |write_path| %>
+      <% if user["permissions"]["write"] != nil %>
+        <% user["permissions"]["write"].each do |write_path| %>
   path="<%= write_path %>"
   write_regex=".*KV Write:.*$path.*"
   if ! [[ $($etcdctl --username root:$ROOT_PASSWORD role get $role) =~ $write_regex ]]; then
     $etcdctl --username root:$ROOT_PASSWORD role grant $role --write --path "$path"
   fi
-    <% end %>
-  <% end %>
+        <% end %>
+      <% end %>
 
   ## bind role to user
   role_regex="Roles:.*$role"
@@ -101,6 +77,28 @@ setup_user_auth() {
 
   $etcdctl --username root:$ROOT_PASSWORD user get $username
   $etcdctl --username root:$ROOT_PASSWORD role get $role
+    <% end %>
+  <% end %>
+  <% end %>
+
+  turn_on_authentication
+
+}
+
+turn_on_authentication() {
+  ## in case it's already enabled
+  ## enable in the end in case before role is granted user don't have acceess
+  set +e
+  result=$($etcdctl --username root:$ROOT_PASSWORD auth enable 2>&1)
+  status=$?
+  set -e
+  if [ "$status" -ne 0 ]; then
+    enable_auth_duplicate_regex="auth: already enabled"
+    if ! [[ "$result" =~ $enable_auth_duplicate_regex ]]; then
+      echo "Error enable auth: $result"
+      exit 1
+    fi
+  fi
 }
 
 main() {
