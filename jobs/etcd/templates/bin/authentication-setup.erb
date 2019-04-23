@@ -103,10 +103,10 @@ setup_users_auth() {
     <% user["versions"].each do |version| %>
       <% if version == "v3" %>
   export ETCDCTL_API=3
-  versions=${version}v3
+  versions=${versions}v3
       <% else %>
   export ETCDCTL_API=2
-  versions=${version}v2
+  versions=${versions}v2
       <% end %>
   username="<%= user["name"] %>"
   password="<%= user["password"] %>"
