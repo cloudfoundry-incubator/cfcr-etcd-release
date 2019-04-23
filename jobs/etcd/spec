@@ -33,8 +33,6 @@ provides:
   - tls.etcdctl.ca
   - tls.etcdctl.certificate
   - tls.etcdctl.private_key
-  - tls.etcdctl-flanneld.certificate
-  - tls.etcdctl-flanneld.private_key
 
 consumes:
 - name: etcd
