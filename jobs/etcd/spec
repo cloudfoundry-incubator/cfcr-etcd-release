@@ -10,6 +10,7 @@ templates:
   bin/pre-start.erb: bin/pre-start
   bin/setup.erb: bin/setup
   bin/utils.sh.erb: bin/utils.sh
+  bin/authentication-setup.erb: bin/authentication-setup
   config/bpm.yml.erb: config/bpm.yml
   config/etcd-ca.crt.erb: config/etcd-ca.crt
   config/etcd.crt.erb: config/etcd.crt
@@ -58,10 +59,6 @@ properties:
     description: Certificate for etcdctl client authentication
   tls.etcdctl.private_key:
     description: Private key for etcdctl client authentication
-  tls.etcdctl-flanneld.certificate:
-    description: Certificate for etcdctl used by flanneld job client authentication
-  tls.etcdctl-flanneld.private_key:
-    description: Private key for etcdctl used by flanneld job client authentication
   tls.peer.ca:
     description: CA for peer authentication
   tls.peer.certificate:
@@ -73,6 +70,7 @@ properties:
     example: |
       - name: root
         password: ((etcd_user_root_password))
+        versions: [ "v2", "v3" ]
       - name: flanneld
         permissions:
           read:
@@ -80,7 +78,10 @@ properties:
           write:
           - /coreos.com/network/*
         password: ((etcd_user_flanneld_password))
+        versions: [ "v2" ]
       - name: foo
-        path: bar
-        permission: read
+        permissions:
+          read:
+          - /bar
         password: pass
+        versions: [ "v2", "v3" ]
