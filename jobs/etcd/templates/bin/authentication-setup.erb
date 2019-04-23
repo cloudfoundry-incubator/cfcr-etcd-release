@@ -110,8 +110,8 @@ setup_users_auth() {
       <% end %>
   username="<%= user["name"] %>"
   password="<%= user["password"] %>"
-  ## Root user is first parsed
       <% if user["name"] == "root" %>
+  ## Root user is first parsed
   echo "Set up user root"
   export ROOT_PASSWORD="$password"
   etcdctl_add_user "root" "$ROOT_PASSWORD"
@@ -140,11 +140,11 @@ setup_users_auth() {
   etcdctl_grant_write_permission "$role" "$path"
           <% end %>
         <% end %>
-      <% end %>
   ## bind role to user
   etcdctl_bind_role_to_user "$username" "$role"
 
   show_user_role "$username" "$role"
+      <% end %>
     <% end %>
     <% end %>
   <% end %>
