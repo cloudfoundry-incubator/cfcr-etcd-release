@@ -100,7 +100,7 @@ setup_users_auth() {
   versions=""
   <% users.each do |user| %>
     <% if user["versions"] != nil %>
-    <% if user["versions"].each do |version| %>
+    <% user["versions"].each do |version| %>
       <% if version == "v3" %>
   export ETCDCTL_API=3
   versions=${version}v3
