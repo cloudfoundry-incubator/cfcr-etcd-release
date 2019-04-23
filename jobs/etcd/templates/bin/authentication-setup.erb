@@ -21,7 +21,7 @@ etcdctl_add_user() {
 }
 
 etcdctl_add_role() {
-  $role=$1
+  role=$1
 
   if [ "$ETCDCTL_API" -eq 3 ]; then
     if [ -z "$($etcdctl --user root:$ROOT_PASSWORD role get $role)" ]; then
