@@ -37,7 +37,7 @@ etcdctl_add_role() {
 etcdctl_grant_read_permission() {
   role=$1
   path=$2
-  read_regex=".*KV Read:.*\s+$path.*KV Write:.*"
+  read_regex=".*KV Read:.*\s+"$path".*KV Write:.*"
 
   if [ "$ETCDCTL_API" -eq 3 ]; then
     $etcdctl --user root:$ROOT_PASSWORD role grant-permission $role read "$path"
@@ -51,7 +51,7 @@ etcdctl_grant_read_permission() {
 etcdctl_grant_write_permission() {
   role=$1
   path=$2
-  write_regex=".*KV Write:.*\s+$path\s+.*|.*KV Write:.*\s+$path$"
+  write_regex=".*KV Write:.*\s+"$path"\s+.*|.*KV Write:.*\s+"$path
 
   if [ "$ETCDCTL_API" -eq 3 ]; then
     read_regex=".*KV Read:.*\s+${path}KV Write:.*|.*KV Read:.*\s+$path\s+.*KV Write:.*"
@@ -70,7 +70,7 @@ etcdctl_grant_write_permission() {
 etcdctl_bind_role_to_user() {
   username=$1
   role=$2
-  role_regex=".*Roles:.*\s+$role\s+.*|.*Roles:.*\s+$role$"
+  role_regex=".*Roles:.*\s+"$role"\s+.*|.*Roles:.*\s+"$role
 
   if [ "$ETCDCTL_API" -eq 3 ]; then
     $etcdctl --user root:$ROOT_PASSWORD user grant-role $username $role
