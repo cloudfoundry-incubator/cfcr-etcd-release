@@ -37,12 +37,10 @@ etcdctl_add_role() {
 etcdctl_grant_read_permission() {
   role=$1
   path=$2
-  read_regex=".*KV Read:.*\s+$path\s+.*KV Write:.*"
+  read_regex=".*KV Read:.*\s+$path.*KV Write:.*"
 
   if [ "$ETCDCTL_API" -eq 3 ]; then
-    if ! [[ $($etcdctl --user root:$ROOT_PASSWORD role get $role) =~ $read_regex ]]; then
-      $etcdctl --user root:$ROOT_PASSWORD role grant-permission $role read "$path"
-    fi
+    $etcdctl --user root:$ROOT_PASSWORD role grant-permission $role read "$path"
   else
     if ! [[ $($etcdctl --username root:$ROOT_PASSWORD role get $role) =~ $read_regex ]]; then
       $etcdctl --username root:$ROOT_PASSWORD role grant $role --read --path "$path"
@@ -53,10 +51,13 @@ etcdctl_grant_read_permission() {
 etcdctl_grant_write_permission() {
   role=$1
   path=$2
-  write_regex=".*KV Write:.*\s+$path[\s+.*|$]"
+  write_regex=".*KV Write:.*\s+$path\s+.*|.*KV Write:.*\s+$path$"
 
   if [ "$ETCDCTL_API" -eq 3 ]; then
-    if ! [[ $($etcdctl --user root:$ROOT_PASSWORD role get $role) =~ $read_regex ]]; then
+    read_regex=".*KV Read:.*\s+${path}KV Write:.*|.*KV Read:.*\s+$path\s+.*KV Write:.*"
+    if [[ $($etcdctl --user root:$ROOT_PASSWORD role get $role) =~ $read_regex ]]; then
+      $etcdctl --user root:$ROOT_PASSWORD role grant-permission $role readwrite "$path"
+    else
       $etcdctl --user root:$ROOT_PASSWORD role grant-permission $role write "$path"
     fi
   else
@@ -69,12 +70,10 @@ etcdctl_grant_write_permission() {
 etcdctl_bind_role_to_user() {
   username=$1
   role=$2
-  role_regex="Roles:.*\s+$role[\s+.*|$]"
+  role_regex=".*Roles:.*\s+$role\s+.*|.*Roles:.*\s+$role$"
 
   if [ "$ETCDCTL_API" -eq 3 ]; then
-    if ! [[ "$($etcdctl --user root:$ROOT_PASSWORD user get $username)" =~ $role_regex ]]; then
-      $etcdctl --user root:$ROOT_PASSWORD user grant-role $username $role
-    fi
+    $etcdctl --user root:$ROOT_PASSWORD user grant-role $username $role
   else
     if ! [[ "$($etcdctl --username root:$ROOT_PASSWORD user get $username)" =~ $role_regex ]]; then
       $etcdctl --username root:$ROOT_PASSWORD user grant $username --roles $role
@@ -148,7 +147,7 @@ setup_users_auth() {
     <% end %>
     <% end %>
   <% end %>
-  turn_on_authentication versions
+  turn_on_authentication $versions
   <% end %>
 }
 
@@ -172,12 +171,13 @@ turn_on_authentication() {
         exit 1
       fi
     fi
+    echo "$result"
   fi
 
   v3_regex=".*v3.*"
   if [[ "$versions" =~ $v3_regex ]]; then
     export ETCDCTL_API=3
-    etcdctl --user root:$ROOT_PASSWORD auth enable
+    $etcdctl --user root:$ROOT_PASSWORD auth enable
   fi
 }
 
