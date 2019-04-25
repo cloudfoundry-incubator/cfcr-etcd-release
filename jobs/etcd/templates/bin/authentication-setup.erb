@@ -51,7 +51,7 @@ etcdctl_grant_read_permission() {
     fi
     ETCDCTL_API=3 $etcdctl --user root:$ROOT_PASSWORD role grant-permission $role read "$path" --prefix=$is_prefix
   else
-    read_regex=".*KV Read:.*\s+"$path"[^\w^-^\\^\*].*KV Write:.*"
+    read_regex=".*KV Read:.*\s+$(printf '%q' $path)\s.*KV Write:.*"
     if ! [[ $(ETCDCTL_API=2 $etcdctl --username root:$ROOT_PASSWORD role get $role) =~ $read_regex ]]; then
       ETCDCTL_API=2 $etcdctl --username root:$ROOT_PASSWORD role grant $role --read --path "$path"
     fi
@@ -71,14 +71,15 @@ etcdctl_grant_write_permission() {
       ## remove * from the end
       path=${path%?}
     fi
-    read_regex=".*KV Read:.*\s+"$path"[^\w^-^\\^\*].*KV Write:.*|.*KV Read:.*\s+(prefix "$path").*KV Write:.*"
+
+    read_regex=".*KV Read:.*\s+$(printf '%q' $path)\s.*KV Write:.*|.*KV Read:.*\s+\(prefix $(printf '%q' $path)\).*KV Write:.*"
     if [[ $(ETCDCTL_API=3 $etcdctl --user root:$ROOT_PASSWORD role get $role) =~ $read_regex ]]; then
       ETCDCTL_API=3 $etcdctl --user root:$ROOT_PASSWORD role grant-permission $role readwrite "$path" --prefix=$is_prefix
     else
       ETCDCTL_API=3 $etcdctl --user root:$ROOT_PASSWORD role grant-permission $role write "$path" --prefix=$is_prefix
     fi
   else
-    write_regex=".*KV Write:.*\s+"$path"[^\w^-^\\^\*].*|.*KV Write:.*\s+"$path
+    write_regex=".*KV Write:.*\s+$(printf '%q' $path)\s.*|.*KV Write:.*\s+$(printf '%q' $path)$"
     if ! [[ $(ETCDCTL_API=2 $etcdctl --username root:$ROOT_PASSWORD role get $role) =~ $write_regex ]]; then
       ETCDCTL_API=2 $etcdctl --username root:$ROOT_PASSWORD role grant $role --write --path "$path"
     fi
@@ -93,7 +94,7 @@ etcdctl_bind_role_to_user() {
   if [ "$version" == "v3" ]; then
     ETCDCTL_API=3 $etcdctl --user root:$ROOT_PASSWORD user grant-role $username $role
   else
-    role_regex=".*Roles:.*\s+"$role"[^\w^-^\\^\*].*|.*Roles:.*\s+"$role
+    role_regex=".*Roles:.*\s+$(printf '%q' $role)\s.*|.*Roles:.*\s+$(printf '%q' $role)$"
     if ! [[ "$(ETCDCTL_API=2 $etcdctl --username root:$ROOT_PASSWORD user get $username)" =~ $role_regex ]]; then
       ETCDCTL_API=2 $etcdctl --username root:$ROOT_PASSWORD user grant $username --roles $role
     fi
