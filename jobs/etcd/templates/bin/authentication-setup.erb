@@ -44,7 +44,7 @@ etcdctl_grant_read_permission() {
   if [ "$version" == "v3" ]; then
     ETCDCTL_API=3 $etcdctl --user root:$ROOT_PASSWORD role grant-permission $role read "$path"
   else
-    read_regex=".*KV Read:.*\s+"$path"\S+.*KV Write:.*"
+    read_regex=".*KV Read:.*\s+"$path"[^\w^-^\\^\*].*KV Write:.*"
     if ! [[ $(ETCDCTL_API=2 $etcdctl --username root:$ROOT_PASSWORD role get $role) =~ $read_regex ]]; then
       ETCDCTL_API=2 $etcdctl --username root:$ROOT_PASSWORD role grant $role --read --path "$path"
     fi
@@ -57,14 +57,14 @@ etcdctl_grant_write_permission() {
   path=$3
 
   if [ "$version" == "v3" ]; then
-    read_regex=".*KV Read:.*\s+"$path"\S+.*KV Write:.*"
+    read_regex=".*KV Read:.*\s+"$path"[^\w^-^\\^\*].*KV Write:.*"
     if [[ $(ETCDCTL_API=3 $etcdctl --user root:$ROOT_PASSWORD role get $role) =~ $read_regex ]]; then
       ETCDCTL_API=3 $etcdctl --user root:$ROOT_PASSWORD role grant-permission $role readwrite "$path"
     else
       ETCDCTL_API=3 $etcdctl --user root:$ROOT_PASSWORD role grant-permission $role write "$path"
     fi
   else
-    write_regex=".*KV Write:.*\s+"$path"\S.*|.*KV Write:.*\s+"$path
+    write_regex=".*KV Write:.*\s+"$path"[^\w^-^\\^\*].*|.*KV Write:.*\s+"$path
     if ! [[ $(ETCDCTL_API=2 $etcdctl --username root:$ROOT_PASSWORD role get $role) =~ $write_regex ]]; then
       ETCDCTL_API=2 $etcdctl --username root:$ROOT_PASSWORD role grant $role --write --path "$path"
     fi
@@ -79,7 +79,7 @@ etcdctl_bind_role_to_user() {
   if [ "$version" == "v3" ]; then
     ETCDCTL_API=3 $etcdctl --user root:$ROOT_PASSWORD user grant-role $username $role
   else
-    role_regex=".*Roles:.*\s+"$role"\s+.*|.*Roles:.*\s+"$role
+    role_regex=".*Roles:.*\s+"$role"[^\w^-^\\^\*].*|.*Roles:.*\s+"$role
     if ! [[ "$(ETCDCTL_API=2 $etcdctl --username root:$ROOT_PASSWORD user get $username)" =~ $role_regex ]]; then
       ETCDCTL_API=2 $etcdctl --username root:$ROOT_PASSWORD user grant $username --roles $role
     fi
