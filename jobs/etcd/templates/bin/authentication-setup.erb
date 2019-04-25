@@ -45,8 +45,9 @@ etcdctl_grant_read_permission() {
     is_prefix="false"
     prefix_regex=".*\*"
     if [[ "$path" =~ $prefix_regex ]]; then
-      path=${path%?}
       is_prefix="true"
+      ## remove * from the end
+      path=${path%?}
     fi
     ETCDCTL_API=3 $etcdctl --user root:$ROOT_PASSWORD role grant-permission $role read "$path" --prefix=$is_prefix
   else
@@ -67,6 +68,7 @@ etcdctl_grant_write_permission() {
     prefix_regex=".*\*"
     if [[ "$path" =~ $prefix_regex ]]; then
       is_prefix="true"
+      ## remove * from the end
       path=${path%?}
     fi
     read_regex=".*KV Read:.*\s+"$path"[^\w^-^\\^\*].*KV Write:.*|.*KV Read:.*\s+(prefix "$path").*KV Write:.*"
