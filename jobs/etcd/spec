@@ -18,6 +18,8 @@ templates:
   config/etcdctl-ca.crt.erb: config/etcdctl-ca.crt
   config/etcdctl.crt.erb: config/etcdctl.crt
   config/etcdctl.key.erb: config/etcdctl.key
+  config/etcdctl-root.crt.erb: config/etcdctl-root.crt
+  config/etcdctl-root.key.erb: config/etcdctl-root.key
   config/peer-ca.crt.erb: config/peer-ca.crt
   config/peer.crt.erb: config/peer.crt
   config/peer.key.erb: config/peer.key
@@ -57,6 +59,10 @@ properties:
     description: Certificate for etcdctl client authentication
   tls.etcdctl.private_key:
     description: Private key for etcdctl client authentication
+  tls.etcdctl-root.certificate:
+    description: Certificate for etcdctl client authentication with CN root
+  tls.etcdctl-root.private_key:
+    description: Private key for etcdctl client authentication with CN root
   tls.peer.ca:
     description: CA for peer authentication
   tls.peer.certificate:
