@@ -22,7 +22,13 @@ trap output_for_bosh EXIT
 
 export ETCDCTL_API=3
 
-if echo "${BOSH_JOB_NEXT_STATE}" | grep "\"persistent_disk\":0"; then
+if echo "${BOSH_JOB_NEXT_STATE}" | grep -q "\"persistent_disk\":0"; then
+    is_node_deleted=1
+else
+    is_node_deleted=0
+fi
+
+if [ $is_node_deleted -eq 1 ] ; then
   member_id="$(/var/vcap/jobs/etcd/bin/etcdctl member list | grep "<%= spec.id %>" | cut -d',' -f1)"
   /var/vcap/jobs/etcd/bin/etcdctl member remove "${member_id}"
 fi
