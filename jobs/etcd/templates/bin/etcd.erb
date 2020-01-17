@@ -34,6 +34,13 @@ if [ ! -d /var/vcap/store/etcd/member ]; then
 fi
 <% end -%>
 
+<%
+  ############################################################################################################
+  # PLEASE KEEP THIS IN SYNC WITH KUBE-APISERVER, KUBE-CONTROLLER-MANAGER, KUBE-SCHEDULER, KUBELET, AND ETCD #
+  ############################################################################################################
+  CIPHER_SUITES='TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384'
+%>
+
 /var/vcap/packages/etcd/bin/etcd \
   --name="<%= spec.id %>" \
   --data-dir="/var/vcap/store/etcd" \
@@ -51,4 +58,5 @@ fi
   --peer-trusted-ca-file="/var/vcap/jobs/etcd/config/peer-ca.crt" \
   --peer-cert-file="/var/vcap/jobs/etcd/config/peer.crt" \
   --peer-key-file="/var/vcap/jobs/etcd/config/peer.key" \
+  --cipher-suites=<%= CIPHER_SUITES %> \
 <% if_p("etcd.metrics_protocol", "etcd.metrics_port") do |protocol, port| %>  --listen-metrics-urls=<%= protocol %>://0.0.0.0:<%= port %> \<% end %>
