@@ -18,7 +18,7 @@ instance_groups:
 - name: etcd
   azs: [z1,z2,z3]
   instances: 3
-  persistent_disk_type: 10GB
+  persistent_disk_type: default
   vm_type: default
   stemcell: default
   networks:
@@ -30,6 +30,9 @@ instance_groups:
       etcd: {as: etcd}
     properties:
       tls:
+        etcdctl-root:
+          certificate: ((tls_etcdctl-root.certificate))
+          private_key: ((tls_etcdctl-root.private_key))
         etcd:
           ca: ((tls_etcd.ca))
           certificate: ((tls_etcd.certificate))
@@ -42,6 +45,21 @@ instance_groups:
           ca: ((tls_etcd_peer.ca))
           certificate: ((tls_etcd_peer.certificate))
           private_key: ((tls_etcd_peer.private_key))
+
+      users:
+        - name: root
+          password: ((etcd_user_root_password))
+          versions:
+            - v2
+        - name: flanneld
+          password: ((etcd_user_flanneld_password))
+          permissions:
+            read:
+              - /coreos.com/network/*
+            write:
+              - /coreos.com/network/*
+          versions:
+            - v2
   - name: bpm
     release: bpm
 
@@ -103,6 +121,15 @@ variables:
     - server_auth
     - client_auth
 
+- name: tls_etcdctl-root
+  type: certificate
+  options:
+    ca: etcd_ca
+    common_name: root
+    extended_key_usage:
+      - server_auth
+      - client_auth
+
 - name: tls_etcdctl
   type: certificate
   options:
@@ -110,6 +137,9 @@ variables:
     common_name: etcd_acceptance_client
     extended_key_usage:
     - client_auth
-
+- name: etcd_user_root_password
+  type: password
+- name: etcd_user_flanneld_password
+  type: password
 features:
   use_dns_addresses: true
