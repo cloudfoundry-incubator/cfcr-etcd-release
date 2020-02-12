@@ -34,3 +34,19 @@ else
   echo "etcd daemon was unable to start after $TIMEOUT seconds"
   exit 1
 fi
+
+# The first etcd to run will parse a lot of new data, and it takes time.
+# (The followers afterward will take only a few seconds.)
+
+if timeout "$TIMEOUT" /bin/bash <<EOF
+#!/bin/bash
+
+until ETCDCTL_API=3 LOCAL=true /var/vcap/jobs/etcd/bin/etcdctl endpoint health > /dev/null ; do
+  sleep 5
+done
+EOF
+then
+  echo "etcd daemon served the local health endpoint successfully"
+else
+  echo "etcd daemon was unable to serve the local health endpoint within $TIMEOUT seconds; continuing anyway"
+fi
