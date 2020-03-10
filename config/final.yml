@@ -1,7 +1,5 @@
 name: cfcr-etcd
 blobstore:
-  provider: s3
+  provider: gcs
   options:
     bucket_name: cfcr-etcd-release-blobs
-    region: us-east1
-    host: storage.googleapis.com
