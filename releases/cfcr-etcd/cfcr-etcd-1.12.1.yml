@@ -1,0 +1,49 @@
+name: cfcr-etcd
+version: 1.12.1
+commit_hash: 8ac451b
+uncommitted_changes: true
+jobs:
+- name: acceptance-tests
+  version: ff3cefa9bd60330af247a83b7346c5be161e8496c613f1b88f0174f3ad1e9b61
+  fingerprint: ff3cefa9bd60330af247a83b7346c5be161e8496c613f1b88f0174f3ad1e9b61
+  sha1: sha256:a35d113c2014c458f117d2c1ea0cd075266089587ae323fce0298edd1fc811b8
+  packages:
+  - acceptance
+  - golang-1.13-linux
+- name: bbr-etcd
+  version: b70183a25575f474a4c137632c46dc175ab32281cd2e2005f148c16cbe02f98b
+  fingerprint: b70183a25575f474a4c137632c46dc175ab32281cd2e2005f148c16cbe02f98b
+  sha1: sha256:88082b51d0cb4c42eacd82930e5f23d3c124bddf58d7636e448ea790bfb3958a
+  packages: []
+- name: dummy-aliases
+  version: 02e9b165a2163e79a4be7d5e40930528ede8948c34943d61b7a4d8af56eedad8
+  fingerprint: 02e9b165a2163e79a4be7d5e40930528ede8948c34943d61b7a4d8af56eedad8
+  sha1: sha256:94eda902a3d192d14c67f94b1505ce484029450b948e19509552620e8cf0ba82
+  packages: []
+- name: etcd
+  version: f9056b484ec64e673ace21c1f5f9cd3216da49e488239ad970373123b6b947c4
+  fingerprint: f9056b484ec64e673ace21c1f5f9cd3216da49e488239ad970373123b6b947c4
+  sha1: sha256:d27c4267d706d89ef111dea1080239d78bd054c3e79a904badeeaae5f0ad6cec
+  packages:
+  - etcd
+packages:
+- name: acceptance
+  version: ac3b53a8bc7c4a41bbe80079768f46dfa48eecc5c1bd68ac3b490ab657b3973c
+  fingerprint: ac3b53a8bc7c4a41bbe80079768f46dfa48eecc5c1bd68ac3b490ab657b3973c
+  sha1: sha256:ba61fb1c047d957721f436a757bebed7c6f1150fe52403d4478aaf9dfedf8def
+  dependencies:
+  - golang-1.13-linux
+- name: etcd
+  version: 825623125e15ec7811c53563015325df0978c48721bb290177837adf417bc56a
+  fingerprint: 825623125e15ec7811c53563015325df0978c48721bb290177837adf417bc56a
+  sha1: sha256:ffd83ce950a05d7893d71d60b3121204734f3e61359828065412b20543f64640
+  dependencies: []
+- name: golang-1.13-linux
+  version: 20234d0cb26adec9565b926f59fa4f7a2ea9e4f230af800fa9a36c8b5f2a8eaa
+  fingerprint: 20234d0cb26adec9565b926f59fa4f7a2ea9e4f230af800fa9a36c8b5f2a8eaa
+  sha1: sha256:660936725d973c27d36bd021cee3905616eb68583ba8199f83b8c0dd4fe259a2
+  dependencies: []
+license:
+  version: 8b3244f5084173690ae185af56279c848184813060a9472ee033472a5d17ee64
+  fingerprint: 8b3244f5084173690ae185af56279c848184813060a9472ee033472a5d17ee64
+  sha1: sha256:be1a860217c73629cc059cdce24c1e178bd7b4b7f7f5e1fb6c6610a18508186b
