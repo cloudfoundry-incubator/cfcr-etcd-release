@@ -1,4 +1,4 @@
-etcd/etcd-v3.3.20-linux-amd64.tar.gz:
-  size: 14243166
-  object_id: d037a3d7-8380-46d2-4435-2541db3e8cdd
-  sha: beeb374124bd5b79a0d569cc0c081a01157a4cbe
+etcd/etcd-v3.3.21-linux-amd64.tar.gz:
+  size: 14259712
+  object_id: 4d204b12-bf10-4e00-6b65-963171172082
+  sha: 8e663a14f180271414d141618a22d6283b482e4f
