@@ -3,7 +3,7 @@ set -e
 ### NOTE: we usually use the same version for both etcd and etcdctl, but due to a defect introduced in
 ### etcdctl 3.3.14, we're mixing the new version of the etcd server (3.3.17) with an older version of etcdctl (3.3.12)
 ETCD_PACKAGE=etcd
-ETCD_VERSION="3.3.*"
+ETCD_VERSION="3.3.22"
 ETCD_EXTRACT_DIR="etcd-${ETCD_VERSION}"
 ETCDCTL_VERSION="3.3.12"
 ETCDCTL_EXTRACT_DIR="etcd-${ETCDCTL_VERSION}"
