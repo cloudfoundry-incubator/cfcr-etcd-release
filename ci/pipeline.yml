@@ -1,3 +1,41 @@
+groups:
+- name: all
+  jobs:
+  - deploy-etcd
+  - run-acceptance-etcd
+  - delete-etcd
+  - deploy-etcd-single-node
+  - run-acceptance-etcd-single-node
+  - delete-etcd-single-node
+  - az-failure-test
+  - delete-etcd-multiaz
+  - scale-from-1-to-3-nodes
+  - delete-etcd-scale
+  # - bbr-deploy-etcd-single-node
+  # - run-bbr-tests
+  # - bbr-delete-etcd-single-node
+  - shipit
+# - name: bosh-etcd
+#   jobs:
+#   - deploy-bosh
+# - name: bbr-tests
+#   jobs:
+#   - bbr-deploy-etcd-single-node
+#   - run-bbr-tests
+#   - bbr-delete-etcd-single-node
+- name: etcd-acceptance-tests
+  jobs:
+  - deploy-etcd
+  - run-acceptance-etcd
+  - delete-etcd
+  - deploy-etcd-single-node
+  - run-acceptance-etcd-single-node
+  - delete-etcd-single-node
+  - az-failure-test
+  - delete-etcd-multiaz
+  - scale-from-1-to-3-nodes
+  - delete-etcd-scale
+
 resource_types:
 - name: bbl-state-resource
   type: docker-image

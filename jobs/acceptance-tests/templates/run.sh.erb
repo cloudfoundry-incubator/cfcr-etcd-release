@@ -9,7 +9,7 @@ LOG_DIR="/var/vcap/sys/log/acceptance-tests"
 mkdir -p "${LOG_DIR}"
 chown vcap:vcap "${LOG_DIR}"
 
-pushd "/var/vcap/packages/acceptance/src/acceptance$" > /dev/null
+pushd "/var/vcap/packages/acceptance/src/acceptance" > /dev/null
   go install ./vendor/github.com/onsi/ginkgo/ginkgo
 
   CONFIG_FILE="/var/vcap/jobs/acceptance-tests/config/integration_config.json" \
