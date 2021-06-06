@@ -3,7 +3,7 @@ name: etcd
 
 stemcells:
 - alias: default
-  os: ubuntu-xenial
+  os: ubuntu-bionic
   version: latest
 
 releases:
