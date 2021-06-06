@@ -10,7 +10,7 @@ mkdir -p "${LOG_DIR}"
 chown vcap:vcap "${LOG_DIR}"
 
 pushd "${GOPATH}/src/acceptance" > /dev/null
-  go install ./vendor/github.com/onsi/ginkgo/ginkgo
+  go build ./vendor/github.com/onsi/ginkgo/ginkgo
 
   CONFIG_FILE="/var/vcap/jobs/acceptance-tests/config/integration_config.json" \
     ginkgo -v --race . \
