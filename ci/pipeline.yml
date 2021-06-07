@@ -11,18 +11,21 @@ groups:
   - delete-etcd-multiaz
   - scale-from-1-to-3-nodes
   - delete-etcd-scale
-  # - bbr-deploy-etcd-single-node
-  # - run-bbr-tests
-  # - bbr-delete-etcd-single-node
+  - bbr-deploy-etcd-single-node
+  - run-bbr-tests
+  - bbr-delete-etcd-single-node
   - shipit
-# - name: bosh-etcd
-#   jobs:
-#   - deploy-bosh
-# - name: bbr-tests
-#   jobs:
-#   - bbr-deploy-etcd-single-node
-#   - run-bbr-tests
-#   - bbr-delete-etcd-single-node
+  - bump-major
+  - bump-minor
+  - bump-patch
+- name: bosh-etcd
+  jobs:
+  - deploy-bosh
+- name: bbr-tests
+  jobs:
+  - bbr-deploy-etcd-single-node
+  - run-bbr-tests
+  - bbr-delete-etcd-single-node
 - name: etcd-acceptance-tests
   jobs:
   - deploy-etcd
@@ -65,60 +68,60 @@ resources:
   type: git
   source:
     uri: git@github.com:cloudfoundry-incubator/cfcr-etcd-release
-    branch: master
+    branch: main
     private_key: ((git-ssh-key.private_key))
 
 - name: stemcell
   type: bosh-io-stemcell
   source:
-    name: bosh-google-kvm-ubuntu-xenial-go_agent
+    name: bosh-google-kvm-ubuntu-bionic-go_agent
 
 - name: single-node-deployment
   type: bosh-deployment
   source:
     deployment: etcd-single-node
-    target: ((cfcr-etcd-bosh.target))
-    client: ((cfcr-etcd-bosh.client))
-    client_secret: ((cfcr-etcd-bosh.client_secret))
-    ca_cert: ((cfcr-etcd-bosh.ca_cert))
-    jumpbox_url: ((cfcr-etcd-bosh.jumpbox_url))
-    jumpbox_ssh_key: ((cfcr-etcd-bosh.jumpbox_ssh_key))
+    target: ((bosh-env-environment))
+    client: ((bosh-env-client))
+    client_secret: ((bosh-env-client-secret))
+    ca_cert: ((bosh-env-ca-cert.certificate))
+    jumpbox_url: ((bosh-env-jumpbox-url))
+    jumpbox_ssh_key: ((bosh-env-jumpbox-ssh.private_key))
     skip_check: true
 
 - name: etcd-deployment
   type: bosh-deployment
   source:
     deployment: etcd
-    target: ((cfcr-etcd-bosh.target))
-    client: ((cfcr-etcd-bosh.client))
-    client_secret: ((cfcr-etcd-bosh.client_secret))
-    ca_cert: ((cfcr-etcd-bosh.ca_cert))
-    jumpbox_url: ((cfcr-etcd-bosh.jumpbox_url))
-    jumpbox_ssh_key: ((cfcr-etcd-bosh.jumpbox_ssh_key))
+    target: ((bosh-env-environment))
+    client: ((bosh-env-client))
+    client_secret: ((bosh-env-client-secret))
+    ca_cert: ((bosh-env-ca-cert.certificate))
+    jumpbox_url: ((bosh-env-jumpbox-url))
+    jumpbox_ssh_key: ((bosh-env-jumpbox-ssh.private_key))
     skip_check: true
 
 - name: etcd-scale-deployment
   type: bosh-deployment
   source:
     deployment: etcd-scale
-    target: ((cfcr-etcd-bosh.target))
-    client: ((cfcr-etcd-bosh.client))
-    client_secret: ((cfcr-etcd-bosh.client_secret))
-    ca_cert: ((cfcr-etcd-bosh.ca_cert))
-    jumpbox_url: ((cfcr-etcd-bosh.jumpbox_url))
-    jumpbox_ssh_key: ((cfcr-etcd-bosh.jumpbox_ssh_key))
+    target: ((bosh-env-environment))
+    client: ((bosh-env-client))
+    client_secret: ((bosh-env-client-secret))
+    ca_cert: ((bosh-env-ca-cert.certificate))
+    jumpbox_url: ((bosh-env-jumpbox-url))
+    jumpbox_ssh_key: ((bosh-env-jumpbox-ssh.private_key))
     skip_check: true
 
 - name: etcd-multiaz-deployment
   type: bosh-deployment
   source:
     deployment: etcd-multiaz
-    target: ((cfcr-etcd-bosh.target))
-    client: ((cfcr-etcd-bosh.client))
-    client_secret: ((cfcr-etcd-bosh.client_secret))
-    ca_cert: ((cfcr-etcd-bosh.ca_cert))
-    jumpbox_url: ((cfcr-etcd-bosh.jumpbox_url))
-    jumpbox_ssh_key: ((cfcr-etcd-bosh.jumpbox_ssh_key))
+    target: ((bosh-env-environment))
+    client: ((bosh-env-client))
+    client_secret: ((bosh-env-client-secret))
+    ca_cert: ((bosh-env-ca-cert.certificate))
+    jumpbox_url: ((bosh-env-jumpbox-url))
+    jumpbox_ssh_key: ((bosh-env-jumpbox-ssh.private_key))
     skip_check: true
 
 - name: bbl-state
@@ -167,51 +170,12 @@ resources:
     drafts: true
     pre_release: true
 
-groups:
-- name: all
-  jobs:
-  - deploy-etcd
-  - run-acceptance-etcd
-  - delete-etcd
-  - deploy-etcd-single-node
-  - run-acceptance-etcd-single-node
-  - delete-etcd-single-node
-  - AZ-failure-test
-  - delete-etcd-multiaz
-  - scale-from-1-to-3-nodes
-  - delete-etcd-scale
-  - bbr-deploy-etcd-single-node
-  - run-bbr-tests
-  - bbr-delete-etcd-single-node
-  - deploy-bosh
-  - shipit
-- name: bosh-etcd
-  jobs:
-  - deploy-bosh
-- name: bbr-tests
-  jobs:
-  - bbr-deploy-etcd-single-node
-  - run-bbr-tests
-  - bbr-delete-etcd-single-node
-- name: etcd-acceptance-tests
-  jobs:
-  - deploy-etcd
-  - run-acceptance-etcd
-  - delete-etcd
-  - deploy-etcd-single-node
-  - run-acceptance-etcd-single-node
-  - delete-etcd-single-node
-  - AZ-failure-test
-  - delete-etcd-multiaz
-  - scale-from-1-to-3-nodes
-  - delete-etcd-scale
-
 jobs:
 - name: deploy-etcd
   serial: true
   serial_groups: [etcd]
   plan:
-  - aggregate:
+  - in_parallel:
     - get: git-cfcr-etcd-release
       trigger: true
     - get: stemcell
@@ -255,13 +219,13 @@ jobs:
         type: docker-image
         source: {repository: pcfkubo/kubo-ci}
       params:
-        BOSH_ENVIRONMENT: ((cfcr-etcd-bosh.target))
-        BOSH_CLIENT: ((cfcr-etcd-bosh.client))
-        BOSH_CLIENT_SECRET: ((cfcr-etcd-bosh.client_secret))
-        BOSH_CA_CERT: ((cfcr-etcd-bosh.ca_cert))
+        BOSH_ENVIRONMENT: ((bosh-env-environment))
+        BOSH_CLIENT: ((bosh-env-client))
+        BOSH_CLIENT_SECRET: ((bosh-env-client-secret))
+        BOSH_CA_CERT: ((bosh-env-ca-cert.certificate))
         BOSH_DEPLOYMENT: etcd
-        JUMPBOX_URL: ((cfcr-etcd-bosh.jumpbox_url))
-        JUMPBOX_SSH_KEY: ((cfcr-etcd-bosh.jumpbox_ssh_key))
+        JUMPBOX_URL: ((bosh-env-jumpbox-url))
+        JUMPBOX_SSH_KEY: ((bosh-env-jumpbox-ssh.private_key))
       inputs:
       - name: git-cfcr-etcd-release
       run:
@@ -283,7 +247,7 @@ jobs:
   serial: true
   serial_groups: [etcd-single-node]
   plan:
-  - aggregate:
+  - in_parallel:
     - get: git-cfcr-etcd-release
       trigger: true
     - get: stemcell
@@ -333,13 +297,13 @@ jobs:
         type: docker-image
         source: {repository: pcfkubo/kubo-ci}
       params:
-        BOSH_ENVIRONMENT: ((cfcr-etcd-bosh.target))
-        BOSH_CLIENT: ((cfcr-etcd-bosh.client))
-        BOSH_CLIENT_SECRET: ((cfcr-etcd-bosh.client_secret))
-        BOSH_CA_CERT: ((cfcr-etcd-bosh.ca_cert))
+        BOSH_ENVIRONMENT: ((bosh-env-environment))
+        BOSH_CLIENT: ((bosh-env-client))
+        BOSH_CLIENT_SECRET: ((bosh-env-client-secret))
+        BOSH_CA_CERT: ((bosh-env-ca-cert.certificate))
         BOSH_DEPLOYMENT: etcd-single-node
-        JUMPBOX_URL: ((cfcr-etcd-bosh.jumpbox_url))
-        JUMPBOX_SSH_KEY: ((cfcr-etcd-bosh.jumpbox_ssh_key))
+        JUMPBOX_URL: ((bosh-env-jumpbox-url))
+        JUMPBOX_SSH_KEY: ((bosh-env-jumpbox-ssh.private_key))
       inputs:
       - name: git-cfcr-etcd-release
       run:
@@ -357,11 +321,11 @@ jobs:
       delete:
         enabled: true
 
-- name: AZ-failure-test
+- name: az-failure-test
   serial: true
   serial_groups: [etcd-az-failure]
   plan:
-  - aggregate:
+  - in_parallel:
     - get: git-cfcr-etcd-release
       trigger: true
     - get: stemcell
@@ -396,14 +360,14 @@ jobs:
   - task: delete-vm
     config:
       platform: linux
-      params:
-        BOSH_ENVIRONMENT: ((cfcr-etcd-bosh.target))
-        BOSH_CLIENT: ((cfcr-etcd-bosh.client))
-        BOSH_CLIENT_SECRET: ((cfcr-etcd-bosh.client_secret))
-        BOSH_CA_CERT: ((cfcr-etcd-bosh.ca_cert))
+      params: &bosh-env-multiaz
+        BOSH_ENVIRONMENT: ((bosh-env-environment))
+        BOSH_CLIENT: ((bosh-env-client))
+        BOSH_CLIENT_SECRET: ((bosh-env-client-secret))
+        BOSH_CA_CERT: ((bosh-env-ca-cert.certificate))
         BOSH_DEPLOYMENT: etcd-multiaz
-        JUMPBOX_URL: ((cfcr-etcd-bosh.jumpbox_url))
-        JUMPBOX_SSH_KEY: ((cfcr-etcd-bosh.jumpbox_ssh_key))
+        JUMPBOX_URL: ((bosh-env-jumpbox-url))
+        JUMPBOX_SSH_KEY: ((bosh-env-jumpbox-ssh.private_key))
       image_resource:
         type: docker-image
         source: {repository: pcfkubo/kubo-ci}
@@ -419,13 +383,7 @@ jobs:
         type: docker-image
         source: {repository: pcfkubo/kubo-ci}
       params:
-        BOSH_ENVIRONMENT: ((cfcr-etcd-bosh.target))
-        BOSH_CLIENT: ((cfcr-etcd-bosh.client))
-        BOSH_CLIENT_SECRET: ((cfcr-etcd-bosh.client_secret))
-        BOSH_CA_CERT: ((cfcr-etcd-bosh.ca_cert))
-        BOSH_DEPLOYMENT: etcd-multiaz
-        JUMPBOX_URL: ((cfcr-etcd-bosh.jumpbox_url))
-        JUMPBOX_SSH_KEY: ((cfcr-etcd-bosh.jumpbox_ssh_key))
+        <<: *bosh-env-multiaz
       inputs:
       - name: git-cfcr-etcd-release
       run:
@@ -436,19 +394,18 @@ jobs:
   serial_groups: [etcd-az-failure]
   plan:
   - get: git-cfcr-etcd-release
-    passed: [ AZ-failure-test ]
+    passed: [ az-failure-test ]
     trigger: true
   - put: etcd-multiaz-deployment
     params:
       delete:
         enabled: true
 
-
 - name: scale-from-1-to-3-nodes
   serial: true
   serial_groups: [etcd-scale]
   plan:
-  - aggregate:
+  - in_parallel:
     - get: git-cfcr-etcd-release
       trigger: true
     - get: stemcell
@@ -487,14 +444,14 @@ jobs:
       image_resource:
         type: docker-image
         source: {repository: pcfkubo/kubo-ci}
-      params:
-        BOSH_ENVIRONMENT: ((cfcr-etcd-bosh.target))
-        BOSH_CLIENT: ((cfcr-etcd-bosh.client))
-        BOSH_CLIENT_SECRET: ((cfcr-etcd-bosh.client_secret))
-        BOSH_CA_CERT: ((cfcr-etcd-bosh.ca_cert))
+      params: &bosh-env-scale
+        BOSH_ENVIRONMENT: ((bosh-env-environment))
+        BOSH_CLIENT: ((bosh-env-client))
+        BOSH_CLIENT_SECRET: ((bosh-env-client-secret))
+        BOSH_CA_CERT: ((bosh-env-ca-cert.certificate))
         BOSH_DEPLOYMENT: etcd-scale
-        JUMPBOX_URL: ((cfcr-etcd-bosh.jumpbox_url))
-        JUMPBOX_SSH_KEY: ((cfcr-etcd-bosh.jumpbox_ssh_key))
+        JUMPBOX_URL: ((bosh-env-jumpbox-url))
+        JUMPBOX_SSH_KEY: ((bosh-env-jumpbox-ssh.private_key))
       inputs:
       - name: git-cfcr-etcd-release
       run:
@@ -520,13 +477,7 @@ jobs:
         type: docker-image
         source: {repository: pcfkubo/kubo-ci}
       params:
-        BOSH_ENVIRONMENT: ((cfcr-etcd-bosh.target))
-        BOSH_CLIENT: ((cfcr-etcd-bosh.client))
-        BOSH_CLIENT_SECRET: ((cfcr-etcd-bosh.client_secret))
-        BOSH_CA_CERT: ((cfcr-etcd-bosh.ca_cert))
-        BOSH_DEPLOYMENT: etcd-scale
-        JUMPBOX_URL: ((cfcr-etcd-bosh.jumpbox_url))
-        JUMPBOX_SSH_KEY: ((cfcr-etcd-bosh.jumpbox_ssh_key))
+        <<: *bosh-env-scale
       inputs:
       - name: git-cfcr-etcd-release
       run:
@@ -548,7 +499,7 @@ jobs:
   serial: true
   serial_groups: [bbr-etcd-single-node]
   plan:
-  - aggregate:
+  - in_parallel:
     - get: git-cfcr-etcd-release
       trigger: true
     - get: stemcell
@@ -593,7 +544,7 @@ jobs:
   serial: true
   serial_groups: [bbr-etcd-single-node]
   plan:
-  - aggregate:
+  - in_parallel:
     - get: git-cfcr-etcd-release
       passed: ['bbr-deploy-etcd-single-node']
       trigger: true
@@ -658,20 +609,18 @@ jobs:
 
 - name: shipit
   plan:
-  - aggregate:
+  - in_parallel:
     - get: git-cfcr-etcd-release
       passed:
       - delete-etcd
       - delete-etcd-multiaz
       - delete-etcd-single-node
-      - bbr-delete-etcd-single-node
       - delete-etcd-scale
     - get: cfcr-etcd-release-version
   - task: create-final-release
     file: git-cfcr-etcd-release/ci/tasks/create-final-release.yml
     params:
-      ACCESS_KEY_ID: ((gcs-access-key-id))
-      SECRET_ACCESS_KEY: ((gcs-secret-access-key))
+      GCS_JSON_KEY: ((gcs-json-key))
   - put: git-cfcr-etcd-release
     params:
       repository: git-cfcr-etcd-release-output
@@ -686,3 +635,34 @@ jobs:
   - put: cfcr-etcd-release-version
     params:
       bump: minor
+
+#
+# Bumping Versions
+#
+
+- name: bump-major
+  plan:
+  - get: cfcr-etcd-release-version
+    params:
+      bump: major
+  - put: cfcr-etcd-release-version
+    params:
+      file: cfcr-etcd-release-version/number
+
+- name: bump-minor
+  plan:
+  - get: cfcr-etcd-release-version
+    params:
+      bump: minor
+  - put: cfcr-etcd-release-version
+    params:
+      file: cfcr-etcd-release-version/number
+
+- name: bump-patch
+  plan:
+  - get: cfcr-etcd-release-version
+    params:
+      bump: patch
+  - put: cfcr-etcd-release-version
+    params:
+      file: cfcr-etcd-release-version/number
