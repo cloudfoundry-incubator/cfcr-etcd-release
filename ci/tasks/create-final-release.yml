@@ -8,9 +8,8 @@ run:
   path: git-cfcr-etcd-release/ci/scripts/create-final-release.sh
 
 params:
-  ACCESS_KEY_ID: ""
-  SECRET_ACCESS_KEY: ""
-  BRANCH: "master"
+  GCS_JSON_KEY:
+  BRANCH: "main"
 
 inputs:
   - name: git-cfcr-etcd-release

@@ -14,9 +14,10 @@ cd git-cfcr-etcd-release-output
 
 cat <<EOF > "config/private.yml"
 blobstore:
+  provider: gcs
   options:
-    access_key_id: ${ACCESS_KEY_ID}
-    secret_access_key: ${SECRET_ACCESS_KEY}
+    credentials_source: static
+    json_key: '${GCS_JSON_KEY}'
 EOF
 
 bosh create-release --final --version=${version} --sha2 --tarball ../cfcr-etcd-release/cfcr-etcd-release-${version}.tgz
@@ -28,6 +29,6 @@ git checkout -b tmp/release
 git add .
 git commit -m "Final release for v${version}"
 git tag -a "v${version}" -m "Tag for version v${version}"
-git checkout "${BRANCH:-master}"
+git checkout "${BRANCH:-main}"
 git merge tmp/release -m "Merge release branch for v${version}"
 git branch -d tmp/release
