@@ -18,6 +18,7 @@ groups:
   - bump-major
   - bump-minor
   - bump-patch
+  - bump-etcd
 - name: bosh-etcd
   jobs:
   - deploy-bosh
@@ -56,6 +57,14 @@ resource_types:
     repository: frodenas/gcs-resource
 
 resources:
+- name: etcd-release
+  type: github-release
+  source:
+    owner: etcd-io
+    repository: etcd
+    tag_filter: v3.3.(.*)
+    access_token: ((github-token-key))
+
 - name: bosh-create-time
   type: time
   source:
@@ -666,3 +675,31 @@ jobs:
   - put: cfcr-etcd-release-version
     params:
       file: cfcr-etcd-release-version/number
+
+- name: bump-etcd
+  plan:
+  - in_parallel:
+    - get: git-cfcr-etcd-release
+    - get: etcd-release
+      trigger: true
+      params: { globs: ["etcd-*-linux-amd64.tar.gz"] }
+  - task: bump-etcd-release
+    config:
+      platform: linux
+      image_resource:
+        type: docker-image
+        source:
+          repository: gcr.io/cf-pks-golf/pcfkubo/kubo-ci
+          tag: stable
+      run:
+        path: git-cfcr-etcd-release/ci/scripts/bump-etcd.sh
+      inputs:
+        - name: git-cfcr-etcd-release
+        - name: etcd-release
+      outputs:
+        - name: git-cfcr-etcd-output
+      params:
+        GCS_JSON_KEY: ((gcs-json-key))
+  - put: git-cfcr-etcd-release
+    params:
+      repository: git-cfcr-etcd-output
